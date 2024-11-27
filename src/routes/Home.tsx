@@ -31,7 +31,7 @@ export default function Home() {
         transition={{ duration: 0.5 }}
         className="text-4xl font-bold mb-8 text-[#273C4E]"
       >
-        Welcome to Lab Reservation System
+        Bem-vindo ao Sistema de Reservas de Laboratório
       </motion.h1>
       <motion.p
         initial={{ y: 50, opacity: 0 }}
@@ -39,8 +39,8 @@ export default function Home() {
         transition={{ duration: 0.5, delay: 0.2 }}
         className="text-xl mb-8 text-center max-w-2xl text-gray-600"
       >
-        Reserve your spot for various lab activities and make the most of our
-        state-of-the-art facilities.
+        Reserve seu espaço para diversas atividades no laboratório e aproveite
+        ao máximo nossas instalações de última geração.
       </motion.p>
       <motion.div
         initial={{ scale: 0.8, opacity: 0 }}
@@ -51,13 +51,13 @@ export default function Home() {
         <Link to="/schedule">
           <Button className="bg-[#273C4E] hover:bg-[#1c2d3d]">
             <Calendar className="mr-2" size={18} />
-            View Schedule
+            Ver Agenda
           </Button>
         </Link>
         <Link to="/reserve">
           <Button className="bg-[#EA0D44] hover:bg-[#c70a38]">
             <Wrench className="mr-2" size={18} />
-            Make a Reservation
+            Fazer uma Reserva
           </Button>
         </Link>
       </motion.div>
@@ -69,33 +69,33 @@ export default function Home() {
       >
         <FeatureCard
           icon={<Zap size={32} />}
-          title="Machining"
-          description="Access to high-precision machining tools for your projects."
+          title="Usinagem"
+          description="Acesso a ferramentas de usinagem de alta precisão para seus projetos."
         />
         <FeatureCard
           icon={<Wrench size={32} />}
-          title="Carpentry"
-          description="Woodworking facilities for all your carpentry needs."
+          title="Marcenaria"
+          description="Instalações de marcenaria para todas as suas necessidades."
         />
         <FeatureCard
           icon={<Zap size={32} />}
-          title="Welding"
-          description="State-of-the-art welding equipment for metal fabrication."
+          title="Soldagem"
+          description="Equipamentos de soldagem de última geração para fabricação de metais."
         />
         <FeatureCard
           icon={<Paintbrush size={32} />}
-          title="Painting"
-          description="Dedicated space for painting and finishing your projects."
+          title="Pintura"
+          description="Espaço dedicado para pintura e acabamento dos seus projetos."
         />
         <FeatureCard
           icon={<Scissors size={32} />}
-          title="Laser Cutting"
-          description="Precision laser cutting services for various materials."
+          title="Corte a Laser"
+          description="Serviços de corte a laser de precisão para diversos materiais."
         />
         <FeatureCard
           icon={<Cog size={32} />}
-          title="CNC Router"
-          description="Advanced CNC routing capabilities for complex designs."
+          title="Router CNC"
+          description="Capacidades avançadas de roteamento CNC para designs complexos."
         />
       </motion.div>
     </div>

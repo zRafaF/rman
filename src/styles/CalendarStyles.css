@@ -1,0 +1,77 @@
+/* General Calendar Styles */
+.custom-calendar {
+  @apply bg-white rounded-lg shadow-lg text-sm;
+}
+
+.custom-calendar .rbc-toolbar {
+  @apply bg-[#273C4E] text-white p-4 flex justify-between items-center rounded-t-lg;
+}
+
+.custom-calendar .rbc-toolbar button {
+  @apply bg-[#EA0D44] text-white px-3 py-2 rounded-md text-xs font-medium hover:bg-[#FF4F6E] transition-all;
+}
+
+.custom-calendar .rbc-toolbar-label {
+  @apply font-bold text-lg;
+}
+
+/* Header Styles */
+.custom-calendar .rbc-header {
+  @apply bg-[#273C4E] text-white font-semibold text-center py-2;
+}
+
+/* Today Highlight */
+.custom-calendar .rbc-today {
+  @apply bg-[#273C4E] bg-opacity-10 border border-[#273C4E];
+}
+
+/* Events */
+.custom-calendar .rbc-event {
+  @apply bg-[#273C4E] text-white rounded-md px-2 py-1 text-xs font-medium shadow-sm;
+}
+
+.custom-calendar .rbc-event:hover {
+  @apply bg-[#3A5A74] shadow-md transition-all;
+}
+
+/* Time Slots */
+.custom-calendar .rbc-time-slot {
+  @apply border-t border-[#D9D9D9] text-[#6B7280];
+}
+
+/* Month View Styles
+.custom-calendar .rbc-month-view {
+  @apply border-[#EA0D44];
+} */
+
+.custom-calendar .rbc-date-cell {
+  @apply text-center font-medium text-[#6B7280];
+}
+
+.custom-calendar .rbc-off-range {
+  @apply text-[#9CA3AF];
+}
+
+/* Focused and Hovered Date Cells */
+.custom-calendar .rbc-date-cell:hover {
+  @apply bg-[#273C4E] text-white rounded-lg transition-all;
+}
+
+/* Mobile Friendly Adjustments */
+@media (max-width: 768px) {
+  .custom-calendar .rbc-toolbar {
+    @apply flex-wrap gap-2;
+  }
+
+  .custom-calendar .rbc-toolbar button {
+    @apply w-full text-center;
+  }
+
+  .custom-calendar {
+    @apply text-xs;
+  }
+
+  .custom-calendar .rbc-header {
+    @apply text-xs py-1;
+  }
+}

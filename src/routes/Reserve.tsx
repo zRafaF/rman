@@ -21,7 +21,6 @@ import {
 } from "@/components/ui/card";
 import { motion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
-import { redirect } from "react-router";
 import { useNavigate } from "react-router";
 
 const timeOptions = [
@@ -86,12 +85,13 @@ export default function Reserve() {
   };
 
   const validateTimes = (time: string, field: "startTime" | "endTime") => {
-    const { startTime, endTime } = formData;
+    const { startTime } = formData;
     if (field === "endTime") {
       return (
         new Date(`1970-01-01T${time}`) > new Date(`1970-01-01T${startTime}`)
       );
     }
+
     return true;
   };
 

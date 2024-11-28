@@ -1,8 +1,5 @@
 import { useState } from "react";
-import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Table,
   TableBody,
@@ -15,343 +12,281 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import {
-  User,
-  Trash2,
-  Edit,
-  Plus,
-  Check,
-  X,
-  Phone,
-  Building,
-} from "lucide-react";
 
-// Mock data for users and reservations
-const mockUsers = [
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
+import { Users, CalendarIcon, Clock, MoreHorizontal } from "lucide-react";
+import AddUserDialog from "@/components/AddUserDialog";
+import CurrentReservations from "@/components/CurrentReservations";
+
+const reservations = [
   {
     id: 1,
-    name: "John Doe",
-    email: "john@example.com",
-    company: "Tech Corp",
-    phone: "123-456-7890",
-  },
-  {
-    id: 2,
-    name: "Jane Smith",
-    email: "jane@example.com",
-    company: "Design Inc",
-    phone: "098-765-4321",
-  },
-];
-
-const mockReservations = [
-  {
-    id: 1,
-    user: "John Doe",
+    companyName: "Acme Corp",
     area: "Machining",
-    date: "2023-06-01",
-    status: "Pending",
-    description: "Need to use the CNC machine for a prototype",
+    date: "2023-05-15",
+    startTime: "09:00",
+    endTime: "11:00",
+    status: "Completed",
   },
   {
     id: 2,
-    user: "Jane Smith",
+    companyName: "TechCo",
     area: "Welding",
-    date: "2023-06-02",
+    date: "2023-05-16",
+    startTime: "14:00",
+    endTime: "16:00",
     status: "Pending",
-    description: "Working on a metal sculpture project",
+  },
+  {
+    id: 3,
+    companyName: "Acme Corp",
+    area: "Laser Cutting",
+    date: "2023-05-17",
+    startTime: "10:00",
+    endTime: "12:00",
+    status: "Accepted",
+  },
+  {
+    id: 4,
+    companyName: "TechCo",
+    area: "CNC Router",
+    date: "2023-05-18",
+    startTime: "13:00",
+    endTime: "15:00",
+    status: "Rejected",
+  },
+  {
+    id: 5,
+    companyName: "Innovate Inc",
+    area: "Painting",
+    date: "2023-05-19",
+    startTime: "11:00",
+    endTime: "13:00",
+    status: "Pending",
+  },
+  {
+    id: 6,
+    companyName: "Future Systems",
+    area: "Carpentry",
+    date: "2023-05-20",
+    startTime: "15:00",
+    endTime: "17:00",
+    status: "Accepted",
   },
 ];
 
-const mockCompanies = [
-  { id: 1, name: "Tech Corp" },
-  { id: 2, name: "Design Inc" },
-];
-
-export default function Admin() {
-  const [users, setUsers] = useState(mockUsers);
-  const [reservations, setReservations] = useState(mockReservations);
-  const [newUser, setNewUser] = useState({
-    name: "",
-    email: "",
-    company: "",
-    phone: "",
-    password: "",
-  });
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-
-  const generatePassword = () => {
-    const randomPassword = Math.random().toString(36).slice(-10); // Simple random password generation
-    setNewUser((prevUser) => ({ ...prevUser, password: randomPassword }));
-  };
-
-  const formatPhone = (value: any) => {
-    const phone = value.replace(/\D/g, "");
-    if (phone.length <= 2) return `(${phone}`;
-    if (phone.length <= 6) return `(${phone.slice(0, 2)}) ${phone.slice(2)}`;
-    return `(${phone.slice(0, 2)}) ${phone.slice(2, 7)}-${phone.slice(7, 11)}`;
-  };
-
-  const handleCreateUser = (e: React.FormEvent) => {
-    e.preventDefault();
-    setUsers([...users, { id: users.length + 1, ...newUser }]);
-    setNewUser({ name: "", email: "", company: "", phone: "", password: "" });
-    setIsDialogOpen(false);
-  };
+export default function AdminPage() {
+  const [users, setUsers] = useState([
+    {
+      id: 1,
+      companyName: "Acme Corp",
+      email: "acme@example.com",
+      phone: "(11)99999-9999",
+    },
+    {
+      id: 2,
+      companyName: "TechCo",
+      email: "techco@example.com",
+      phone: "(22)88888-8888",
+    },
+    {
+      id: 3,
+      companyName: "Innovate Inc",
+      email: "innovate@example.com",
+      phone: "(33)77777-7777",
+    },
+    {
+      id: 4,
+      companyName: "Future Systems",
+      email: "future@example.com",
+      phone: "(44)66666-6666",
+    },
+  ]);
 
   const handleDeleteUser = (id: number) => {
     setUsers(users.filter((user) => user.id !== id));
   };
 
-  const handleEditUser = (id: number) => {
-    // Implement edit user logic here
-    console.log("Edit user:", id);
-  };
-
-  const handleReservationAction = (id: number, action: "accept" | "reject") => {
-    setReservations(
-      reservations.map((res) =>
-        res.id === id
-          ? { ...res, status: action === "accept" ? "Accepted" : "Rejected" }
-          : res
-      )
-    );
-  };
+  const chartData = [
+    { name: "Machining", value: 4 },
+    { name: "Carpentry", value: 3 },
+    { name: "Welding", value: 2 },
+    { name: "Painting", value: 2 },
+    { name: "Laser Cutting", value: 5 },
+    { name: "CNC Router", value: 3 },
+  ];
+  const pastReservations = reservations.filter((r) => r.status === "Completed");
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      className="container mx-auto px-4 py-8"
-    >
-      <h1 className="text-3xl font-bold mb-8 text-[#273C4E]">
-        Admin Dashboard
-      </h1>
+    <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 p-8">
+      <div className="max-w-7xl mx-auto space-y-8">
+        <h1 className="text-4xl font-bold text-[#273C4E]">Admin Dashboard</h1>
 
-      <section className="mb-12">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-semibold text-[#273C4E]">
-            Manage Users
-          </h2>
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button className="bg-[#273C4E] hover:bg-[#1c2d3d]">
-                <Plus className="mr-2" size={18} />
-                Create User
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Create New User</DialogTitle>
-                <DialogDescription>
-                  Fill in the details to create a new user.
-                </DialogDescription>
-              </DialogHeader>
-              <form onSubmit={handleCreateUser}>
-                <div className="grid gap-4 py-4">
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="name" className="text-right">
-                      Name
-                    </Label>
-                    <Input
-                      id="name"
-                      value={newUser.name}
-                      onChange={(e) =>
-                        setNewUser({ ...newUser, name: e.target.value })
-                      }
-                      className="col-span-3"
-                      required
-                    />
-                  </div>
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="email" className="text-right">
-                      Email
-                    </Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={newUser.email}
-                      onChange={(e) =>
-                        setNewUser({ ...newUser, email: e.target.value })
-                      }
-                      className="col-span-3"
-                      required
-                    />
-                  </div>
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="company" className="text-right">
-                      Company
-                    </Label>
-                    <select
-                      id="company"
-                      value={newUser.company}
-                      onChange={(e) =>
-                        setNewUser({ ...newUser, company: e.target.value })
-                      }
-                      className="col-span-3"
-                      required
-                    >
-                      <option value="">Select a Company</option>
-                      {mockCompanies.map((company) => (
-                        <option key={company.id} value={company.name}>
-                          {company.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="phone" className="text-right">
-                      Phone
-                    </Label>
-                    <Input
-                      id="phone"
-                      type="tel"
-                      value={formatPhone(newUser.phone)}
-                      onChange={(e) =>
-                        setNewUser({ ...newUser, phone: e.target.value })
-                      }
-                      className="col-span-3"
-                      required
-                    />
-                  </div>
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="password" className="text-right">
-                      Password
-                    </Label>
-                    <div className="col-span-3 flex items-center">
-                      <Input
-                        id="password"
-                        type="password"
-                        value={newUser.password}
-                        onChange={(e) =>
-                          setNewUser({ ...newUser, password: e.target.value })
-                        }
-                        className="mr-2"
-                        required
-                        readOnly
-                      />
-                      <Button type="button" onClick={generatePassword}>
-                        Generate Password
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-                <DialogFooter>
-                  <Button type="submit">Create User</Button>
-                  <Button
-                    type="button"
-                    onClick={() => (window.location.href = "/create-company")}
-                  >
-                    Create Company
-                  </Button>
-                </DialogFooter>
-              </form>
-            </DialogContent>
-          </Dialog>
-        </div>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead>Company</TableHead>
-              <TableHead>Phone</TableHead>
-              <TableHead>Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {users.map((user) => (
-              <TableRow key={user.id}>
-                <TableCell>{user.name}</TableCell>
-                <TableCell>{user.email}</TableCell>
-                <TableCell>{user.company}</TableCell>
-                <TableCell>{user.phone}</TableCell>
-                <TableCell>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={() => handleEditUser(user.id)}
-                    className="mr-2"
-                  >
-                    <Edit size={18} />
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={() => handleDeleteUser(user.id)}
-                  >
-                    <Trash2 size={18} />
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </section>
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <Card className="md:col-span-2 lg:col-span-3">
+            <CardHeader>
+              <CardTitle>Reservations by Area</CardTitle>
+              <CardDescription>
+                Overview of reservations for each laboratory area
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={chartData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Tooltip />
+                  <Bar dataKey="value" fill="#273C4E" />
+                </BarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
 
-      <section>
-        <h2 className="text-2xl font-semibold mb-4 text-[#273C4E]">
-          Manage Reservations
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {reservations.map((reservation) => (
-            <Card key={reservation.id}>
-              <CardHeader>
-                <CardTitle>{reservation.user}</CardTitle>
-                <CardDescription>
-                  {reservation.area} - {reservation.date}
-                </CardDescription>
+          <div className="space-y-6">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  Total Users
+                </CardTitle>
+                <Users className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <p>{reservation.description}</p>
-                <p className="mt-2 font-semibold">
-                  Status: {reservation.status}
-                </p>
+                <div className="text-2xl font-bold">{users.length}</div>
               </CardContent>
-              <CardFooter className="flex justify-end space-x-2">
-                {reservation.status === "Pending" && (
-                  <>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() =>
-                        handleReservationAction(reservation.id, "accept")
-                      }
-                    >
-                      <Check size={18} className="mr-2" />
-                      Accept
-                    </Button>
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={() =>
-                        handleReservationAction(reservation.id, "reject")
-                      }
-                    >
-                      <X size={18} className="mr-2" />
-                      Reject
-                    </Button>
-                  </>
-                )}
-              </CardFooter>
             </Card>
-          ))}
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  Pending Reservations
+                </CardTitle>
+                <Clock className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">
+                  {reservations.filter((r) => r.status === "Pending").length}
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  Upcoming Reservations
+                </CardTitle>
+                <CalendarIcon className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">
+                  {reservations.filter((r) => r.status === "Accepted").length}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <CurrentReservations className="md:col-span-2 lg:col-span-4" />
+          <Card className="md:col-span-2">
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle>Gerenciar Empresas</CardTitle>
+                <CardDescription>Adicione e gerencie empresas</CardDescription>
+              </div>
+              <AddUserDialog />
+            </CardHeader>
+            <CardContent>
+              <ScrollArea className="h-[300px]">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Nome da empresa</TableHead>
+                      <TableHead>Email</TableHead>
+                      <TableHead>Telefone</TableHead>
+                      <TableHead>Ações</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {users.map((user) => (
+                      <TableRow key={user.id}>
+                        <TableCell>{user.companyName}</TableCell>
+                        <TableCell>{user.email}</TableCell>
+                        <TableCell>{user.phone}</TableCell>
+                        <TableCell>
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <Button variant="ghost" className="h-8 w-8 p-0">
+                                <MoreHorizontal className="h-4 w-4" />
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-40">
+                              <Button
+                                variant="ghost"
+                                className="w-full justify-start"
+                              >
+                                Editar
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                className="w-full justify-start text-destructive"
+                                onClick={() => handleDeleteUser(user.id)}
+                              >
+                                Deletar
+                              </Button>
+                            </PopoverContent>
+                          </Popover>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </ScrollArea>
+            </CardContent>
+          </Card>
+          <Card className="md:col-span-2">
+            <CardHeader>
+              <CardTitle>Past Reservations</CardTitle>
+              <CardDescription>View completed reservations</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ScrollArea className="h-[300px]">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Company</TableHead>
+                      <TableHead>Area</TableHead>
+                      <TableHead>Date & Time</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {pastReservations.map((reservation) => (
+                      <TableRow key={reservation.id}>
+                        <TableCell>{reservation.companyName}</TableCell>
+                        <TableCell>{reservation.area}</TableCell>
+                        <TableCell>{`${reservation.date} ${reservation.startTime}-${reservation.endTime}`}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </ScrollArea>
+            </CardContent>
+          </Card>
         </div>
-      </section>
-    </motion.div>
+      </div>
+    </div>
   );
 }

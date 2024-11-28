@@ -16,11 +16,37 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 import { motion } from "framer-motion";
+import { useAuth } from "@/hooks/useAuth";
+import { redirect } from "react-router";
+import { useNavigate } from "react-router";
+
+const timeOptions = [
+  "08:00",
+  "08:30",
+  "09:00",
+  "09:30",
+  "10:00",
+  "10:30",
+  "11:00",
+  "11:30",
+  "12:00",
+  "12:30",
+  "13:00",
+  "13:30",
+  "14:00",
+  "14:30",
+  "15:00",
+  "15:30",
+  "16:00",
+  "16:30",
+  "17:00",
+  "17:30",
+  "18:00",
+];
 
 export default function Reserve() {
   const [formData, setFormData] = useState({
@@ -31,32 +57,21 @@ export default function Reserve() {
     endTime: "",
     area: "",
   });
+  const [user, loading] = useAuth();
 
   const [telephone, setTelephone] = useState<E164Number | undefined>();
+  const navigate = useNavigate();
 
-  const timeOptions = [
-    "08:00",
-    "08:30",
-    "09:00",
-    "09:30",
-    "10:00",
-    "10:30",
-    "11:00",
-    "11:30",
-    "12:00",
-    "12:30",
-    "13:00",
-    "13:30",
-    "14:00",
-    "14:30",
-    "15:00",
-    "15:30",
-    "16:00",
-    "16:30",
-    "17:00",
-    "17:30",
-    "18:00",
-  ];
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (!user) {
+    navigate("/not-authenticated?redirect_to=/reserve", {
+      replace: true,
+    });
+    return <></>;
+  }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -250,7 +265,9 @@ export default function Reserve() {
                 <Button
                   type="submit"
                   className={`w-full bg-[#EA0D44] hover:bg-[#c70a38] ${
-                    !validateForm() ? "opacity-50 cursor-not-allowed" : ""
+                    !validateForm()
+                      ? "opacity-30 contrast-75 cursor-not-allowed"
+                      : ""
                   }`}
                   disabled={!validateForm()}
                 >

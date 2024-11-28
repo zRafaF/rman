@@ -2,19 +2,69 @@ import { FunctionComponent, useState } from "react";
 import { Link } from "react-router";
 import {
   Calendar,
-  Home,
   BookOpen,
-  User,
-  Settings,
+  LogOut,
+  LayoutDashboard,
   Menu,
   X,
+  User,
 } from "lucide-react";
 import Logo from "@/assets/rmanlogoinverted.svg?react"; // SVG import as React component
+import { useAuth } from "@/hooks/useAuth";
 
 interface HeaderProps {}
 
 const Header: FunctionComponent<HeaderProps> = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [user, loading, logout] = useAuth();
+
+  console.log(user);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  const loggedInHeader = (
+    <>
+      <li>
+        <Link to="/reserve" className="hover:text-[#EA0D44] flex items-center">
+          <BookOpen className="mr-1" size={18} />
+          Nova Reserva
+        </Link>
+      </li>
+      <li>
+        <Link to="/admin" className="hover:text-[#EA0D44] flex items-center">
+          <LayoutDashboard className="mr-1" size={18} />
+          Dashboard
+        </Link>
+      </li>
+      <li>
+        <button
+          onClick={logout}
+          className="hover:text-[#EA0D44] flex items-center"
+        >
+          <LogOut className="mr-1" size={18} />
+          Sair
+        </button>
+      </li>
+    </>
+  );
+  const loggedOutHeader = (
+    <>
+      <li>
+        <Link to="/schedule" className="hover:text-[#EA0D44] flex items-center">
+          <Calendar className="mr-1" size={18} />
+          Agendamento
+        </Link>
+      </li>
+      <li>
+        <Link to="/login" className="hover:text-[#EA0D44] flex items-center">
+          <User className="mr-1" size={18} />
+          Login
+        </Link>
+      </li>
+    </>
+  );
 
   return (
     <header className="bg-[#273C4E] text-white px-4 sticky top-0">
@@ -33,7 +83,6 @@ const Header: FunctionComponent<HeaderProps> = () => {
           >
             {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
-          {/* Navigation menu */}
           <ul
             className={`md:flex md:space-x-4 items-center ${
               isMenuOpen
@@ -41,48 +90,7 @@ const Header: FunctionComponent<HeaderProps> = () => {
                 : "hidden"
             } md:static md:flex-row md:space-y-0`}
           >
-            <li>
-              <Link to="/" className="hover:text-[#EA0D44] flex items-center">
-                <Home className="mr-1" size={18} />
-                Home
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/schedule"
-                className="hover:text-[#EA0D44] flex items-center"
-              >
-                <Calendar className="mr-1" size={18} />
-                Agendamento
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/reserve"
-                className="hover:text-[#EA0D44] flex items-center"
-              >
-                <BookOpen className="mr-1" size={18} />
-                Reserve
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/login"
-                className="hover:text-[#EA0D44] flex items-center"
-              >
-                <User className="mr-1" size={18} />
-                Login
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/admin"
-                className="hover:text-[#EA0D44] flex items-center"
-              >
-                <Settings className="mr-1" size={18} />
-                Admin
-              </Link>
-            </li>
+            {user ? loggedInHeader : loggedOutHeader}
           </ul>
         </div>
       </nav>

@@ -5,6 +5,8 @@ import path from "path";
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: "https://zrafaf.github.io/rman/",
+
   plugins: [
     react(),
     svgr(), // Add the SVGR plugin

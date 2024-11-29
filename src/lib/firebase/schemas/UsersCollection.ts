@@ -1,6 +1,7 @@
 export enum UserRoles {
   ADMIN = "admin",
   USER = "user",
+  COMPANY = "company",
 }
 
 interface UsersCollection {

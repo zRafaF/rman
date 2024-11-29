@@ -6,7 +6,7 @@ import path from "path";
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: "https://zrafaf.github.io/rman/",
+  base: "/rman/",
 
   plugins: [
     react(),
@@ -16,6 +16,16 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+    },
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          react: ["react"],
+          "react-dom": ["react-dom"],
+        },
+      },
     },
   },
 });

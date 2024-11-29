@@ -19,7 +19,7 @@ import NotAuthenticated from "./routes/NotAuthenticated.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <BrowserRouter basename={process.env.PUBLIC_URL}>
+    <BrowserRouter basename={"/rman"}>
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />} />

@@ -1,9 +1,9 @@
 {
   "name": "rman",
-  "private": true,
+  "private": false,
   "version": "0.0.1",
   "type": "module",
-  "homepage": "./",
+  "homepage": "https://zrafaf.github.io/rman",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",

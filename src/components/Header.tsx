@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import Logo from "@/assets/rmanlogoinverted.svg?react"; // SVG import as React component
 import { useAuth } from "@/hooks/useAuth";
+import { toast } from "react-toastify";
 
 interface HeaderProps {}
 
@@ -40,7 +41,18 @@ const Header: FunctionComponent<HeaderProps> = () => {
       </li>
       <li>
         <button
-          onClick={logout}
+          onClick={() => {
+            logout()
+              .then(() => {
+                toast.success("Logout efetuado com sucesso.");
+              })
+              .catch((error) => {
+                console.error("Error logging out:", error);
+                toast.error(
+                  "Erro ao efetuar logout. Por favor, tente novamente."
+                );
+              });
+          }}
           className="hover:text-[#EA0D44] flex items-center"
         >
           <LogOut className="mr-1" size={18} />
@@ -67,7 +79,7 @@ const Header: FunctionComponent<HeaderProps> = () => {
   );
 
   return (
-    <header className="bg-[#273C4E] text-white px-4 sticky top-0">
+    <header className="bg-[#273C4E] text-white px-4 sticky top-0 z-10">
       <nav className="container mx-auto flex justify-between items-center">
         <Link to="/" className="flex items-center h-full">
           <Logo

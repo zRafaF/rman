@@ -7,7 +7,7 @@ import {
   CardDescription,
   CardFooter,
 } from "@/components/ui/card";
-import { HardHat } from "lucide-react";
+import { HardHat, LogIn, Send } from "lucide-react";
 // import CitizenLogin from './CitizenLogin';
 // import PoliceLogin from './PoliceLogin';
 import { Button } from "@/components/ui/button";
@@ -20,6 +20,7 @@ import { Eye, EyeOff, Shield } from "lucide-react";
 import { login } from "@/lib/firebase/users";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router";
+import { RotatingLines } from "react-loader-spinner";
 
 export default function Login() {
   const [email, setEmail] = useState<string>("");
@@ -29,6 +30,7 @@ export default function Login() {
   const searchParamError = searchParams.get("error");
   const searchParamRedirectTo = searchParams.get("redirect_to");
   const navigate = useNavigate();
+  const [loading, setLoading] = useState<boolean>(false);
 
   const [error, setError] = useState<string>(
     searchParamError ? "Credenciais inválidas. Por favor, tente novamente." : ""
@@ -36,6 +38,7 @@ export default function Login() {
 
   const credentialsAction = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
     try {
       const loginResult = await login(email, password);
 
@@ -51,6 +54,7 @@ export default function Login() {
       console.error("Error logging in:", error);
       toast.error("Credenciais inválidas. Por favor, tente novamente.");
     }
+    setLoading(false);
   };
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900 dark:to-purple-900">
@@ -62,9 +66,9 @@ export default function Login() {
         >
           <CardHeader className="space-y-1">
             <div className="flex items-center justify-center mb-4">
-              <HardHat className="h-12 w-12 text-primary" />
+              <HardHat className="h-12 w-12 text-primary" color="#273C4E" />
             </div>
-            <CardTitle className="text-2xl text-center">
+            <CardTitle className="text-2xl text-center text-[#273C4E]">
               Bem-vindo ao Rman
             </CardTitle>
             <CardDescription className="text-center">
@@ -119,9 +123,26 @@ export default function Login() {
                   </div>
                 </div>
               </div>
-              <Button type="submit" className="w-full mt-6">
-                <Shield className="mr-2 h-4 w-4" />
-                Entrar
+
+              <Button
+                type="submit"
+                className="w-full mt-6 bg-[#273C4E] hover:bg-[#1c2d3d]"
+                disabled={loading}
+              >
+                {loading ? (
+                  <>
+                    <RotatingLines
+                      ariaLabel="chat-loading"
+                      strokeColor="white"
+                    />
+                    Fazendo login...
+                  </>
+                ) : (
+                  <>
+                    <LogIn />
+                    Entrar
+                  </>
+                )}
               </Button>
             </form>
           </CardContent>

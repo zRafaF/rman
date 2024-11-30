@@ -21,7 +21,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { MoreHorizontal } from "lucide-react";
 
 interface CurrentReservationsProps
@@ -228,6 +228,7 @@ const CurrentReservations: FunctionComponent<CurrentReservationsProps> = ({
               ))}
             </TableBody>
           </Table>
+          <ScrollBar orientation="horizontal" />
         </ScrollArea>
       </CardContent>
     </Card>

@@ -21,7 +21,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import {
   BarChart,
   Bar,
@@ -34,6 +34,8 @@ import {
 import { Users, CalendarIcon, Clock, MoreHorizontal } from "lucide-react";
 import AddUserDialog from "@/components/AddUserDialog";
 import CurrentReservations from "@/components/CurrentReservations";
+import { useAuth } from "@/hooks/useAuth";
+import { useNavigate } from "react-router";
 
 const reservations = [
   {
@@ -120,6 +122,20 @@ export default function AdminPage() {
     },
   ]);
 
+  const [user, loading] = useAuth();
+  const navigate = useNavigate();
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (!user) {
+    navigate("/not-authenticated?redirect_to=/admin", {
+      replace: true,
+    });
+    return <></>;
+  }
+
   const handleDeleteUser = (id: number) => {
     setUsers(users.filter((user) => user.id !== id));
   };
@@ -135,7 +151,7 @@ export default function AdminPage() {
   const pastReservations = reservations.filter((r) => r.status === "Completed");
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 p-8">
+    <div className=" bg-gradient-to-br from-gray-100 to-gray-200 p-8">
       <div className="max-w-7xl mx-auto space-y-8">
         <h1 className="text-4xl font-bold text-[#273C4E]">Admin Dashboard</h1>
 
@@ -160,8 +176,8 @@ export default function AdminPage() {
             </CardContent>
           </Card>
 
-          <div className="space-y-6">
-            <Card>
+          <div className="space-y-6 flex flex-row md:flex-col justify-between gap-3 overflow-auto">
+            <Card className="w-full h-full !m-0">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
                   Total Users
@@ -172,7 +188,7 @@ export default function AdminPage() {
                 <div className="text-2xl font-bold">{users.length}</div>
               </CardContent>
             </Card>
-            <Card>
+            <Card className="w-full h-full !m-0">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
                   Pending Reservations
@@ -185,7 +201,7 @@ export default function AdminPage() {
                 </div>
               </CardContent>
             </Card>
-            <Card>
+            <Card className="w-full h-full !m-0">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
                   Upcoming Reservations
@@ -200,9 +216,9 @@ export default function AdminPage() {
             </Card>
           </div>
 
-          <CurrentReservations className="md:col-span-2 lg:col-span-4" />
-          <Card className="md:col-span-2">
-            <CardHeader className="flex flex-row items-center justify-between">
+          <CurrentReservations className="md:col-span-3 lg:col-span-4 overflow-auto" />
+          <Card className="md:col-span-3 lg:col-span-2 overflow-auto">
+            <CardHeader className="flex sm:flex-row items-center justify-between ">
               <div>
                 <CardTitle>Gerenciar Empresas</CardTitle>
                 <CardDescription>Adicione e gerencie empresas</CardDescription>
@@ -254,10 +270,11 @@ export default function AdminPage() {
                     ))}
                   </TableBody>
                 </Table>
+                <ScrollBar orientation="horizontal" />
               </ScrollArea>
             </CardContent>
           </Card>
-          <Card className="md:col-span-2">
+          <Card className="md:col-span-3 lg:col-span-2 overflow-auto">
             <CardHeader>
               <CardTitle>Past Reservations</CardTitle>
               <CardDescription>View completed reservations</CardDescription>
@@ -282,6 +299,7 @@ export default function AdminPage() {
                     ))}
                   </TableBody>
                 </Table>
+                <ScrollBar orientation="horizontal" />
               </ScrollArea>
             </CardContent>
           </Card>

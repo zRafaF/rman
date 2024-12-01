@@ -12,12 +12,14 @@ import {
 import Logo from "@/assets/rmanlogoinverted.svg?react"; // SVG import as React component
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "react-toastify";
+import { useUserContext } from "@/contexts/UserContext";
 
 interface HeaderProps {}
 
 const Header: FunctionComponent<HeaderProps> = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [user, loading, logout] = useAuth();
+  const userCtx = useUserContext();
 
   if (loading) {
     return <div>Loading...</div>;
@@ -26,17 +28,26 @@ const Header: FunctionComponent<HeaderProps> = () => {
   const loggedInHeader = (
     <>
       <li>
+        <Link to="/schedule" className="hover:text-[#EA0D44] flex items-center">
+          <Calendar className="mr-1" size={18} />
+          Agendamento
+        </Link>
+      </li>
+      <li>
         <Link to="/reserve" className="hover:text-[#EA0D44] flex items-center">
           <BookOpen className="mr-1" size={18} />
           Nova Reserva
         </Link>
       </li>
-      <li>
-        <Link to="/admin" className="hover:text-[#EA0D44] flex items-center">
-          <LayoutDashboard className="mr-1" size={18} />
-          Dashboard
-        </Link>
-      </li>
+      {userCtx.userDoc?.role === "admin" && (
+        <li>
+          <Link to="/admin" className="hover:text-[#EA0D44] flex items-center">
+            <LayoutDashboard className="mr-1" size={18} />
+            Dashboard
+          </Link>
+        </li>
+      )}
+
       <li>
         <button
           onClick={() => {

@@ -17,10 +17,11 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Eye, EyeOff, Shield } from "lucide-react";
-import { login } from "@/lib/firebase/users";
+import { getUserById, login } from "@/lib/firebase/users";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router";
 import { RotatingLines } from "react-loader-spinner";
+import { UserRoles } from "@/lib/firebase/schemas/UserDocument";
 
 export default function Login() {
   const [email, setEmail] = useState<string>("");
@@ -43,11 +44,22 @@ export default function Login() {
       const loginResult = await login(email, password);
 
       if (loginResult.operationType === "signIn") {
+        const user = await getUserById(loginResult.user.uid);
+
         toast.success("Login efetuado com sucesso.");
 
-        navigate(searchParamRedirectTo ? searchParamRedirectTo : "/admin", {
-          replace: true,
-        }); // Navigate to the new post page
+        const isAdmin = user.data()?.role == UserRoles.ADMIN;
+
+        navigate(
+          searchParamRedirectTo
+            ? searchParamRedirectTo
+            : isAdmin
+            ? "/admin"
+            : "/reserve",
+          {
+            replace: true,
+          }
+        ); // Navigate to the new post page
       }
     } catch (error) {
       setError("Credenciais inválidas. Por favor, tente novamente.");

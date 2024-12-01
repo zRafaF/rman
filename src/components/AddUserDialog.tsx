@@ -55,6 +55,16 @@ const AddUserDialog: FunctionComponent<AddUserDialogProps> = () => {
   const handleCreateUser = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (
+      !newUser.companyName ||
+      !newUser.email ||
+      !newUser.phone ||
+      !newUser.password
+    ) {
+      toast.error("Preencha todos os campos para continuar.");
+      return;
+    }
+
     setIsLoading(true);
     try {
       await adminRegisterUser(
@@ -83,8 +93,7 @@ const AddUserDialog: FunctionComponent<AddUserDialogProps> = () => {
 
   const copyPassword = () => {
     if (passwordRef.current) {
-      passwordRef.current.select();
-      document.execCommand("copy");
+      navigator.clipboard.writeText(passwordRef.current.value);
       setIsCopied(true);
       setTimeout(() => setIsCopied(false), 1000);
     }

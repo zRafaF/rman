@@ -23,6 +23,13 @@ export default function AdminPage() {
     return <></>;
   }
 
+  if (userCtx.userDoc?.role !== "admin") {
+    navigate("/not-authorized", {
+      replace: true,
+    });
+    return <></>;
+  }
+
   return (
     <div className="bg-gradient-to-br from-gray-100 to-gray-200">
       <div className="max-w-7xl mx-auto space-y-8 py-16">

@@ -6,7 +6,6 @@ import {
   ReactNode,
   FunctionComponent,
 } from "react";
-import { getFirestore } from "firebase/firestore";
 import { useAuth } from "@/hooks/useAuth";
 import UserDocument from "@/lib/firebase/schemas/UserDocument";
 import { getUserById } from "@/lib/firebase/users";

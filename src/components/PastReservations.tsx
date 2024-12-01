@@ -17,7 +17,6 @@ import {
 } from "@/components/ui/card";
 
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import ReservationDocument from "@/lib/firebase/schemas/ReservationDocument";
 
 const reservations = [
   {

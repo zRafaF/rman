@@ -1,6 +1,6 @@
 import { db } from "@/firebase";
 import ReservationDocument from "./schemas/ReservationDocument";
-import { collection, addDoc, getDocs, query, where } from "firebase/firestore";
+import { collection, addDoc, getDocs } from "firebase/firestore";
 import { timestampToDate } from "../time-helper";
 
 export async function createReservation(reservation: ReservationDocument) {

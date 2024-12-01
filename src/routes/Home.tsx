@@ -1,6 +1,14 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Calendar, Wrench, Zap, Paintbrush, Scissors, Cog } from "lucide-react";
+import {
+  Calendar,
+  Wrench,
+  Zap,
+  Paintbrush,
+  Scissors,
+  Cog,
+  BookOpen,
+} from "lucide-react";
 import { Link } from "react-router";
 
 const FeatureCard = ({
@@ -56,7 +64,7 @@ export default function Home() {
         </Link>
         <Link to="/reserve">
           <Button className="bg-[#EA0D44] hover:bg-[#c70a38]">
-            <Wrench className="mr-2" size={18} />
+            <BookOpen className="mr-2" size={18} />
             Fazer uma Reserva
           </Button>
         </Link>

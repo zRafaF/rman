@@ -181,7 +181,7 @@ const Schedule: FunctionComponent<ScheduleProps> = () => {
             components={components}
             onView={onView}
             view={view}
-            // views={["month", "day", "agenda"]}
+            views={["month", "day", "agenda"]}
             selectable={true}
             date={selectedDate}
             onNavigate={onNavigate}

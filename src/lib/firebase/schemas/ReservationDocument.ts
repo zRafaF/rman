@@ -1,4 +1,4 @@
-import { DocumentSnapshot } from "firebase/firestore/lite";
+// import { DocumentSnapshot } from "firebase/firestore/lite";
 
 export enum AreasEnum {
   MACHINING = "machining",
@@ -14,16 +14,16 @@ export enum StatusEnum {
   REJECTED = "rejected",
 }
 
-interface ReservesCollection extends DocumentSnapshot {
+interface ReservationDocument {
   uid: string;
   email: string;
   phone: string;
   area: AreasEnum;
   reserveDate: Date;
-  startTime: string;
-  endTime: string;
+  startTime: Date;
+  endTime: Date;
 
   status: StatusEnum;
 }
 
-export default ReservesCollection;
+export default ReservationDocument;

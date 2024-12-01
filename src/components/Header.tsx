@@ -19,8 +19,6 @@ const Header: FunctionComponent<HeaderProps> = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [user, loading, logout] = useAuth();
 
-  console.log(user);
-
   if (loading) {
     return <div>Loading...</div>;
   }

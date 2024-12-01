@@ -6,16 +6,19 @@ import {
   getDocs,
   query,
   orderBy,
+  deleteDoc,
+  doc,
+  QuerySnapshot,
 } from "firebase/firestore";
-import { timestampToDate } from "../time-helper";
-
 export async function createReservation(reservation: ReservationDocument) {
   const docRef = await addDoc(collection(db, "reservations"), reservation);
 
   return docRef;
 }
 
-export async function getAllReservations(): Promise<ReservationDocument[]> {
+export async function getAllReservations(): Promise<
+  QuerySnapshot<ReservationDocument>
+> {
   // Create a Firestore query that orders documents by "startTime"
   const reservationsQuery = query(
     collection(db, "reservations"),
@@ -24,18 +27,12 @@ export async function getAllReservations(): Promise<ReservationDocument[]> {
 
   const querySnapshot = await getDocs(reservationsQuery);
 
-  const reservations: ReservationDocument[] = [];
-  querySnapshot.forEach((doc) => {
-    const data = doc.data();
+  return querySnapshot as QuerySnapshot<ReservationDocument>;
+}
 
-    data.reservationDate = timestampToDate(data.reservationDate);
-    data.startTime = timestampToDate(data.startTime);
-    data.endTime = timestampToDate(data.endTime);
-
-    reservations.push(data as ReservationDocument);
-  });
-
-  return reservations;
+export async function deleteReservation(reservationId: string) {
+  // Delete a reservation by its id
+  await deleteDoc(doc(db, "reservations", reservationId));
 }
 
 /**

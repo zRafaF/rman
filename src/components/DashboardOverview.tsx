@@ -24,10 +24,11 @@ import ReservationDocument, {
   AreasEnum,
 } from "@/lib/firebase/schemas/ReservationDocument";
 import UserDocument from "@/lib/firebase/schemas/UserDocument";
+import { QuerySnapshot } from "firebase/firestore";
 
 interface DashboardOverviewProps extends React.HTMLAttributes<HTMLDivElement> {
   users: UseQueryResult<UserDocument[], Error>;
-  reservations: UseQueryResult<ReservationDocument[], Error>;
+  reservations: UseQueryResult<QuerySnapshot<ReservationDocument>, Error>;
 }
 
 const DashboardOverview: FunctionComponent<DashboardOverviewProps> = ({
@@ -39,46 +40,57 @@ const DashboardOverview: FunctionComponent<DashboardOverviewProps> = ({
     () => [
       {
         name: "Carpintaria",
-        value: reservations.data?.filter((r) => r.area === AreasEnum.CARPENTRY)
-          .length,
+        value: reservations.data?.docs.filter(
+          (r) => r.data().area === AreasEnum.CARPENTRY
+        ).length,
       },
       {
         name: "CNC Router",
-        value: reservations.data?.filter((r) => r.area === AreasEnum.CNC_ROUTER)
-          .length,
+        value: reservations.data?.docs.filter(
+          (r) => r.data().area === AreasEnum.CNC_ROUTER
+        ).length,
       },
       {
         name: "Corte a laser",
-        value: reservations.data?.filter(
-          (r) => r.area === AreasEnum.LASER_CUTTING
+        value: reservations.data?.docs.filter(
+          (r) => r.data().area === AreasEnum.LASER_CUTTING
         ).length,
       },
       {
         name: "Usinagem",
-        value: reservations.data?.filter((r) => r.area === AreasEnum.MACHINING)
-          .length,
+        value: reservations.data?.docs.filter(
+          (r) => r.data().area === AreasEnum.MACHINING
+        ).length,
       },
       {
         name: "Pintura",
-        value: reservations.data?.filter((r) => r.area === AreasEnum.PAINTING)
-          .length,
+        value: reservations.data?.docs.filter(
+          (r) => r.data().area === AreasEnum.PAINTING
+        ).length,
       },
       {
         name: "Solda",
-        value: reservations.data?.filter((r) => r.area === AreasEnum.WELDING)
-          .length,
+        value: reservations.data?.docs.filter(
+          (r) => r.data().area === AreasEnum.WELDING
+        ).length,
       },
     ],
     [reservations.data]
   );
 
   const numberOfOpenReservations = useMemo(
-    () => reservations.data?.filter((r) => r.endTime >= new Date()).length,
+    () =>
+      reservations.data?.docs.filter(
+        (r) => r.data().endTime.toDate() >= new Date()
+      ).length,
     [reservations.data]
   );
 
   const numberOfCompletedReservations = useMemo(
-    () => reservations.data?.filter((r) => r.endTime < new Date()).length,
+    () =>
+      reservations.data?.docs.filter(
+        (r) => r.data().endTime.toDate() < new Date()
+      ).length,
     [reservations.data]
   );
 

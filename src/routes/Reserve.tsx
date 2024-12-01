@@ -29,6 +29,7 @@ import ReservationDocument, {
 import {
   convertDateToTimeString,
   convertTimeStringToDate,
+  dateToTimestamp,
   getTimeStringArray,
 } from "@/lib/time-helper";
 import { toast } from "react-toastify";
@@ -78,37 +79,35 @@ export default function Reserve() {
 
   const validateForm = () => {
     return (
+      reservationDate &&
+      startTime &&
+      endTime &&
       name &&
       email &&
       telephone &&
       area &&
-      reservationDate &&
-      startTime &&
-      endTime &&
       validateDate()
     );
   };
 
+  if (
+    !reservationDate ||
+    !startTime ||
+    !endTime ||
+    !name ||
+    !email ||
+    !telephone ||
+    !area
+  ) {
+    toast.error("Preencha todos os campos para continuar.");
+    return null;
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    console.log({
-      name,
-      email,
-      telephone,
-      area,
-      reserveDate: reservationDate,
-      startTime,
-      endTime,
-    });
-
     if (!validateDate()) {
       toast.error("O horário de fim deve ser depois do horário de início.");
-      return;
-    }
-
-    if (!validateForm()) {
-      toast.error("Por favor, preencha todos os campos.");
       return;
     }
 
@@ -121,9 +120,9 @@ export default function Reserve() {
       email: email!,
       phone: telephone!,
       area: area!,
-      reservationDate: reservationDate!,
-      startTime: startTime!,
-      endTime: endTime!,
+      reservationDate: dateToTimestamp(reservationDate),
+      startTime: dateToTimestamp(startTime),
+      endTime: dateToTimestamp(endTime),
 
       status: StatusEnum.PENDING,
     };

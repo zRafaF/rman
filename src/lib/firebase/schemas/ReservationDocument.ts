@@ -1,5 +1,7 @@
 // import { DocumentSnapshot } from "firebase/firestore/lite";
 
+import { Timestamp } from "firebase/firestore";
+
 export enum AreasEnum {
   MACHINING = "machining",
   CARPENTRY = "carpentry",
@@ -25,9 +27,9 @@ interface ReservationDocument {
   status: StatusEnum;
   area: AreasEnum;
 
-  reservationDate: Date;
-  startTime: Date;
-  endTime: Date;
+  reservationDate: Timestamp;
+  startTime: Timestamp;
+  endTime: Timestamp;
 }
 
 export default ReservationDocument;

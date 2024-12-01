@@ -1,3 +1,4 @@
+import { Timestamp } from "firebase/firestore";
 import moment from "moment";
 
 // @ts-expect-error Missing type definitions
@@ -76,6 +77,14 @@ export function timestampToDate(timestamp: {
   nanoseconds: number;
 }) {
   return new Date(timestamp.seconds * 1000);
+}
+
+export function dateToTimestamp(date: Date): Timestamp {
+  return Timestamp.fromDate(date);
+}
+
+export function formatDate(date: Date, format: string = "l") {
+  return moment(date).format(format);
 }
 
 export function formatReservationDate(

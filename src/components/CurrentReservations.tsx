@@ -1,5 +1,4 @@
 import { FunctionComponent, useMemo } from "react";
-import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -15,23 +14,19 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { MoreHorizontal } from "lucide-react";
 import ReservationDocument from "@/lib/firebase/schemas/ReservationDocument";
 import { UseQueryResult } from "@tanstack/react-query";
 import { formatReservationDate } from "@/lib/time-helper";
-import { formatPhoneNumber } from "react-phone-number-input";
 import { translateAreasEnum } from "@/lib/enums-translators";
 import UserDocument from "@/lib/firebase/schemas/UserDocument";
+import ReservationInfoDialog from "./ReservationInfoDialog";
+import { QuerySnapshot } from "firebase/firestore";
 
 interface CurrentReservationsProps
   extends React.HTMLAttributes<HTMLDivElement> {
-  reservations: UseQueryResult<ReservationDocument[], Error>;
+  reservations: UseQueryResult<QuerySnapshot<ReservationDocument>, Error>;
   users: UseQueryResult<UserDocument[], Error>;
 }
 
@@ -41,13 +36,22 @@ const CurrentReservations: FunctionComponent<CurrentReservationsProps> = ({
   users,
 }) => {
   const openReservations = useMemo(
-    () => reservations.data?.filter((r) => r.endTime >= new Date()),
+    () =>
+      reservations.data?.docs.filter(
+        (r) => r.data().endTime.toDate() >= new Date()
+      ),
     [reservations.data]
   );
-
-  const findCompanyName = (uid: string) => {
-    return users.data?.find((user) => user.uid === uid)?.name;
+  const findUser = (uid: string) => {
+    return users.data?.find((user) => user.uid === uid);
   };
+
+  const pairedReservations = useMemo(() => {
+    return openReservations?.map((reservation) => ({
+      reservation: reservation,
+      user: findUser(reservation.data().uid),
+    }));
+  }, [openReservations]);
 
   return (
     <Card className={className}>
@@ -64,42 +68,26 @@ const CurrentReservations: FunctionComponent<CurrentReservationsProps> = ({
               <TableRow>
                 <TableHead>Nome</TableHead>
                 <TableHead>Area</TableHead>
-                <TableHead>Nome Utilizador</TableHead>
-                <TableHead>Tel. Utilizador</TableHead>
                 <TableHead>Data e Hora</TableHead>
                 <TableHead>Mais</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {openReservations?.map((reservation) => (
-                <TableRow
-                  key={`reservation-${reservation.uid}-${reservation.startTime}-${reservation.reservationDate}`}
-                >
-                  <TableCell>{findCompanyName(reservation.uid)}</TableCell>
+              {pairedReservations?.map((pair) => (
+                <TableRow key={`reservation-${pair.reservation.id}`}>
+                  <TableCell>{pair.user?.name}</TableCell>
                   <TableCell>
-                    {translateAreasEnum(reservation.area).title}
+                    {translateAreasEnum(pair.reservation.data().area).title}
                   </TableCell>
-                  <TableCell>{reservation.name}</TableCell>
-                  <TableCell>{formatPhoneNumber(reservation.phone)}</TableCell>
                   <TableCell>
                     {formatReservationDate(
-                      reservation.reservationDate,
-                      reservation.startTime,
-                      reservation.endTime
+                      pair.reservation.data().reservationDate.toDate(),
+                      pair.reservation.data().startTime.toDate(),
+                      pair.reservation.data().endTime.toDate()
                     )}
                   </TableCell>
-
                   <TableCell>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-40">
-                        Mais Informações
-                      </PopoverContent>
-                    </Popover>
+                    <ReservationInfoDialog reservationPair={pair} />
                   </TableCell>
                 </TableRow>
               ))}

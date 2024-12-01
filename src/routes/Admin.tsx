@@ -22,8 +22,6 @@ export default function AdminPage() {
   const reservations = useQuery({
     queryKey: ["reservations"],
     queryFn: async () => await getAllReservations(),
-
-    initialData: [],
   });
 
   if (loading || userCtx.loading) {

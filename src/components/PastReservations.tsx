@@ -22,9 +22,11 @@ import ReservationDocument from "@/lib/firebase/schemas/ReservationDocument";
 import { translateAreasEnum } from "@/lib/enums-translators";
 import { formatReservationDate } from "@/lib/time-helper";
 import UserDocument from "@/lib/firebase/schemas/UserDocument";
+import ReservationInfoDialog from "./ReservationInfoDialog";
+import { QuerySnapshot } from "firebase/firestore";
 
 interface PastReservationsProps extends React.HTMLAttributes<HTMLDivElement> {
-  reservations: UseQueryResult<ReservationDocument[], Error>;
+  reservations: UseQueryResult<QuerySnapshot<ReservationDocument>, Error>;
   users: UseQueryResult<UserDocument[], Error>;
 }
 
@@ -34,13 +36,23 @@ const PastReservations: FunctionComponent<PastReservationsProps> = ({
   users,
 }) => {
   const concludedReservations = useMemo(
-    () => reservations.data?.filter((r) => r.endTime < new Date()),
+    () =>
+      reservations.data?.docs.filter(
+        (r) => r.data().endTime.toDate() < new Date()
+      ),
     [reservations.data]
   );
 
-  const findCompanyName = (uid: string) => {
-    return users.data?.find((user) => user.uid === uid)?.name;
+  const findUser = (uid: string) => {
+    return users.data?.find((user) => user.uid === uid);
   };
+
+  const pairedReservations = useMemo(() => {
+    return concludedReservations?.map((reservation) => ({
+      reservation: reservation,
+      user: findUser(reservation.data().uid),
+    }));
+  }, [concludedReservations]);
 
   return (
     <Card className={className}>
@@ -60,20 +72,21 @@ const PastReservations: FunctionComponent<PastReservationsProps> = ({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {concludedReservations?.map((reservation) => (
-                <TableRow
-                  key={`reservation-${reservation.uid}-${reservation.startTime}-${reservation.reservationDate}`}
-                >
-                  <TableCell>{findCompanyName(reservation.uid)}</TableCell>
+              {pairedReservations?.map((pair) => (
+                <TableRow key={`reservation-${pair.reservation.id}`}>
+                  <TableCell>{pair.user?.name}</TableCell>
                   <TableCell>
-                    {translateAreasEnum(reservation.area).title}
+                    {translateAreasEnum(pair.reservation.data().area).title}
                   </TableCell>
                   <TableCell>
                     {formatReservationDate(
-                      reservation.reservationDate,
-                      reservation.startTime,
-                      reservation.endTime
+                      pair.reservation.data().reservationDate.toDate(),
+                      pair.reservation.data().startTime.toDate(),
+                      pair.reservation.data().endTime.toDate()
                     )}
+                  </TableCell>
+                  <TableCell>
+                    <ReservationInfoDialog reservationPair={pair} />
                   </TableCell>
                 </TableRow>
               ))}

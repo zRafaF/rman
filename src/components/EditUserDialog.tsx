@@ -15,10 +15,7 @@ import { Label } from "@/components/ui/label";
 
 import PhoneInput from "react-phone-number-input";
 import pt_BR from "react-phone-number-input/locale/pt-BR";
-import UserDocument, {
-  UserRoles,
-  UserStatus,
-} from "@/lib/firebase/schemas/UserDocument";
+import UserDocument, { UserRoles } from "@/lib/firebase/schemas/UserDocument";
 import { toast } from "react-toastify";
 import { RotatingLines } from "react-loader-spinner";
 import {

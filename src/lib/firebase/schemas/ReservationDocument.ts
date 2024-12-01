@@ -6,6 +6,7 @@ export enum AreasEnum {
   WELDING = "welding",
   PAINTING = "painting",
   LASER_CUTTING = "laser-cutting",
+  CNC_ROUTER = "cnc-router",
 }
 
 export enum StatusEnum {

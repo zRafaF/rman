@@ -224,7 +224,9 @@ export default function Reserve() {
                           <SelectItem value={AreasEnum.LASER_CUTTING}>
                             Corte à laser
                           </SelectItem>
-                          <SelectItem value="cnc-router">CNC Router</SelectItem>
+                          <SelectItem value={AreasEnum.CNC_ROUTER}>
+                            CNC Router
+                          </SelectItem>
                         </SelectContent>
                       </Select>
                     </div>

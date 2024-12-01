@@ -15,21 +15,26 @@ import React from "react";
 import { getAllReservations } from "@/lib/firebase/reservations";
 import { useQuery } from "@tanstack/react-query";
 import ReservationDocument from "@/lib/firebase/schemas/ReservationDocument";
+import { ReactBigCalendarEvent } from "@/types/ReactBigCalendar";
+import { translateAreasEnum } from "@/lib/enums-translators";
 
-interface ReactBigCalendarEvent {
-  title: string;
-  start: Date;
-  end: Date;
-  allDay?: boolean;
-  resource?: ReservationDocument;
-}
+const EventBody: FunctionComponent<
+  EventProps<ReactBigCalendarEvent<ReservationDocument>>
+> = ({ event }) => {
+  if (!event.resource) {
+    return <div>{event.title}</div>;
+  }
+  const translatedArea = translateAreasEnum(event.resource.area);
 
-const EventBody: FunctionComponent<EventProps<ReactBigCalendarEvent>> = ({
-  event,
-}) => {
-  console.log("Event:", event);
+  return (
+    <div className={`border-l-8 p-1  ${translatedArea.color}`}>
+      <div className="px-1 flex gap-2 align-middle">
+        {event.title}
 
-  return <div className="border-b-4 border-indigo-500">{event.title}</div>;
+        {translatedArea.icon}
+      </div>
+    </div>
+  );
 };
 
 interface ScheduleProps {}
@@ -51,10 +56,10 @@ const Schedule: FunctionComponent<ScheduleProps> = () => {
     [setSelectedDate]
   );
 
-  const events: ReactBigCalendarEvent[] = useMemo(
+  const events: ReactBigCalendarEvent<ReservationDocument>[] = useMemo(
     () =>
       reservations.data.map((reservation) => ({
-        title: reservation.name,
+        title: translateAreasEnum(reservation.area).title,
         start: reservation.startTime,
         end: reservation.endTime,
         resource: reservation,

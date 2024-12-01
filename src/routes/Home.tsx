@@ -2,15 +2,16 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import {
   Calendar,
-  Wrench,
   Zap,
   Paintbrush,
   Scissors,
   Cog,
   BookOpen,
+  Hammer,
+  Bolt,
 } from "lucide-react";
 import { Link } from "react-router";
-import { SiGithub } from "@icons-pack/react-simple-icons";
+import Footer from "@/components/Footer";
 
 const FeatureCard = ({
   icon,
@@ -80,12 +81,12 @@ export default function Home() {
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl"
         >
           <FeatureCard
-            icon={<Zap size={32} />}
+            icon={<Bolt size={32} />}
             title="Usinagem"
             description="Acesso a ferramentas de usinagem para seus projetos."
           />
           <FeatureCard
-            icon={<Wrench size={32} />}
+            icon={<Hammer size={32} />}
             title="Marcenaria"
             description="Instalações de marcenaria para todas as suas necessidades."
           />
@@ -111,25 +112,7 @@ export default function Home() {
           />
         </motion.div>
       </div>
-      <footer className="bg-gray-100 dark:bg-gray-900 py-6 md:py-12 mt-auto">
-        <div className="flex justify-around flex-col md:flex-row gap-2">
-          <div className="mx-auto">
-            <p>Criado por Rafael F. Meneses</p>
-          </div>
-          <div className="mx-auto">
-            <p>
-              &copy; {new Date().getFullYear()} Rman. Todos os direitos
-              reservados.
-            </p>
-          </div>
-
-          <div className="mx-auto">
-            <Link to="https://github.com/zRafaF/rman">
-              <SiGithub color="#273C4E" />
-            </Link>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

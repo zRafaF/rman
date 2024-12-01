@@ -41,7 +41,7 @@
 
 /* Events */
 .custom-calendar .rbc-event {
-  @apply bg-[#273C4E] text-white rounded-md px-2 py-1 text-xs font-medium shadow-sm;
+  @apply bg-[#273C4E] text-white rounded-md p-0 text-xs font-medium shadow-sm overflow-hidden;
 }
 
 .custom-calendar .rbc-event:hover {
@@ -89,7 +89,7 @@
   }
 
   .custom-calendar .rbc-event {
-    @apply text-xs px-1 py-0.5;
+    @apply text-xs p-0;
   }
 
   .custom-calendar .rbc-today {

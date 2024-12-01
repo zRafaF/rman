@@ -5,6 +5,7 @@ import { useUserContext } from "@/contexts/UserContext";
 import ManageUsers from "@/components/ManageUsers";
 import DashboardOverview from "@/components/DashboardOverview";
 import PastReservations from "@/components/PastReservations";
+import Footer from "@/components/Footer";
 
 export default function AdminPage() {
   const [user, loading] = useAuth();
@@ -23,8 +24,8 @@ export default function AdminPage() {
   }
 
   return (
-    <div className=" bg-gradient-to-br from-gray-100 to-gray-200 p-8">
-      <div className="max-w-7xl mx-auto space-y-8">
+    <div className="bg-gradient-to-br from-gray-100 to-gray-200">
+      <div className="max-w-7xl mx-auto space-y-8 py-16">
         <h1 className="text-4xl font-bold text-[#273C4E]">
           Rman Dashboard, olá {userCtx.userDoc?.name}
         </h1>
@@ -37,6 +38,7 @@ export default function AdminPage() {
           <PastReservations className="md:col-span-3 lg:col-span-2 overflow-auto" />
         </div>
       </div>
+      <Footer />
     </div>
   );
 }

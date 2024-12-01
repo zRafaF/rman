@@ -1,4 +1,4 @@
-import { FunctionComponent } from "react";
+import { FunctionComponent, useMemo } from "react";
 
 import {
   Table,
@@ -17,73 +17,35 @@ import {
 } from "@/components/ui/card";
 
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { UseQueryResult } from "@tanstack/react-query";
+import ReservationDocument from "@/lib/firebase/schemas/ReservationDocument";
+import { translateAreasEnum } from "@/lib/enums-translators";
+import { formatReservationDate } from "@/lib/time-helper";
+import UserDocument from "@/lib/firebase/schemas/UserDocument";
 
-const reservations = [
-  {
-    id: 1,
-    companyName: "Acme Corp",
-    area: "Machining",
-    date: "2023-05-15",
-    startTime: "09:00",
-    endTime: "11:00",
-    status: "Completed",
-  },
-  {
-    id: 2,
-    companyName: "TechCo",
-    area: "Welding",
-    date: "2023-05-16",
-    startTime: "14:00",
-    endTime: "16:00",
-    status: "Pending",
-  },
-  {
-    id: 3,
-    companyName: "Acme Corp",
-    area: "Laser Cutting",
-    date: "2023-05-17",
-    startTime: "10:00",
-    endTime: "12:00",
-    status: "Accepted",
-  },
-  {
-    id: 4,
-    companyName: "TechCo",
-    area: "CNC Router",
-    date: "2023-05-18",
-    startTime: "13:00",
-    endTime: "15:00",
-    status: "Rejected",
-  },
-  {
-    id: 5,
-    companyName: "Innovate Inc",
-    area: "Painting",
-    date: "2023-05-19",
-    startTime: "11:00",
-    endTime: "13:00",
-    status: "Pending",
-  },
-  {
-    id: 6,
-    companyName: "Future Systems",
-    area: "Carpentry",
-    date: "2023-05-20",
-    startTime: "15:00",
-    endTime: "17:00",
-    status: "Accepted",
-  },
-];
-
-interface PastReservationsProps extends React.HTMLAttributes<HTMLDivElement> {}
+interface PastReservationsProps extends React.HTMLAttributes<HTMLDivElement> {
+  reservations: UseQueryResult<ReservationDocument[], Error>;
+  users: UseQueryResult<UserDocument[], Error>;
+}
 
 const PastReservations: FunctionComponent<PastReservationsProps> = ({
   className,
+  reservations,
+  users,
 }) => {
+  const concludedReservations = useMemo(
+    () => reservations.data?.filter((r) => r.endTime < new Date()),
+    [reservations.data]
+  );
+
+  const findCompanyName = (uid: string) => {
+    return users.data?.find((user) => user.uid === uid)?.name;
+  };
+
   return (
     <Card className={className}>
       <CardHeader>
-        <CardTitle>Reservas Anteriores</CardTitle>
+        <CardTitle>Reservas Concluídas</CardTitle>
         <CardDescription>Ver histórico completo de reservas.</CardDescription>
       </CardHeader>
       <CardContent>
@@ -93,15 +55,26 @@ const PastReservations: FunctionComponent<PastReservationsProps> = ({
               <TableRow>
                 <TableHead>Nome</TableHead>
                 <TableHead>Area</TableHead>
-                <TableHead>Data e hora</TableHead>
+                <TableHead>Data e Hora</TableHead>
+                <TableHead>Mais</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {reservations.map((reservation) => (
-                <TableRow key={reservation.id}>
-                  <TableCell>{reservation.companyName}</TableCell>
-                  <TableCell>{reservation.area}</TableCell>
-                  <TableCell>{`${reservation.date} ${reservation.startTime}-${reservation.endTime}`}</TableCell>
+              {concludedReservations?.map((reservation) => (
+                <TableRow
+                  key={`reservation-${reservation.uid}-${reservation.startTime}-${reservation.reservationDate}`}
+                >
+                  <TableCell>{findCompanyName(reservation.uid)}</TableCell>
+                  <TableCell>
+                    {translateAreasEnum(reservation.area).title}
+                  </TableCell>
+                  <TableCell>
+                    {formatReservationDate(
+                      reservation.reservationDate,
+                      reservation.startTime,
+                      reservation.endTime
+                    )}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>

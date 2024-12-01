@@ -25,17 +25,19 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
 import { MoreHorizontal, Building2, User, ShieldAlert } from "lucide-react";
 import AddUserDialog from "@/components/AddUserDialog";
-import { UserRoles } from "@/lib/firebase/schemas/UserDocument";
-import { getAllActiveUsers } from "@/lib/firebase/users";
-import { useQuery } from "@tanstack/react-query";
+import UserDocument, { UserRoles } from "@/lib/firebase/schemas/UserDocument";
+import { UseQueryResult } from "@tanstack/react-query";
 
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { formatPhoneNumber } from "react-phone-number-input";
 
-interface ManageUsersProps extends HtmlHTMLAttributes<HTMLDivElement> {}
+interface ManageUsersProps extends HtmlHTMLAttributes<HTMLDivElement> {
+  users: UseQueryResult<UserDocument[], Error>;
+}
 
 function roleToIcon(role: UserRoles) {
   switch (role) {
@@ -76,12 +78,10 @@ function roleToIcon(role: UserRoles) {
   }
 }
 
-const ManageUsers: FunctionComponent<ManageUsersProps> = ({ className }) => {
-  const users = useQuery({
-    queryKey: ["users"],
-    queryFn: async () => await getAllActiveUsers(),
-  });
-
+const ManageUsers: FunctionComponent<ManageUsersProps> = ({
+  className,
+  users,
+}) => {
   if (users.isPending) {
     return <div>Loading...</div>;
   }
@@ -117,7 +117,7 @@ const ManageUsers: FunctionComponent<ManageUsersProps> = ({ className }) => {
                   <TableCell>{user.name}</TableCell>
                   <TableCell>{roleToIcon(user.role)}</TableCell>
                   <TableCell>{user.email}</TableCell>
-                  <TableCell>{user.phone}</TableCell>
+                  <TableCell>{formatPhoneNumber(user.phone)}</TableCell>
 
                   <TableCell>
                     <Popover>

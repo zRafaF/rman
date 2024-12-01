@@ -1,5 +1,5 @@
-import { useQuery } from "@tanstack/react-query";
-import { FunctionComponent } from "react";
+import { UseQueryResult } from "@tanstack/react-query";
+import { FunctionComponent, useMemo } from "react";
 
 import {
   BarChart,
@@ -10,7 +10,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import { Users, CalendarIcon, Clock } from "lucide-react";
+import { Users, CalendarIcon, CircleCheckBig } from "lucide-react";
 
 import {
   Card,
@@ -20,91 +20,75 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { getAllActiveUsers } from "@/lib/firebase/users";
+import ReservationDocument, {
+  AreasEnum,
+} from "@/lib/firebase/schemas/ReservationDocument";
+import UserDocument from "@/lib/firebase/schemas/UserDocument";
 
-const chartData = [
-  { name: "Machining", value: 4 },
-  { name: "Carpentry", value: 3 },
-  { name: "Welding", value: 2 },
-  { name: "Painting", value: 2 },
-  { name: "Laser Cutting", value: 5 },
-  { name: "CNC Router", value: 3 },
-];
-
-const reservations = [
-  {
-    id: 1,
-    companyName: "Acme Corp",
-    area: "Machining",
-    date: "2023-05-15",
-    startTime: "09:00",
-    endTime: "11:00",
-    status: "Completed",
-  },
-  {
-    id: 2,
-    companyName: "TechCo",
-    area: "Welding",
-    date: "2023-05-16",
-    startTime: "14:00",
-    endTime: "16:00",
-    status: "Pending",
-  },
-  {
-    id: 3,
-    companyName: "Acme Corp",
-    area: "Laser Cutting",
-    date: "2023-05-17",
-    startTime: "10:00",
-    endTime: "12:00",
-    status: "Accepted",
-  },
-  {
-    id: 4,
-    companyName: "TechCo",
-    area: "CNC Router",
-    date: "2023-05-18",
-    startTime: "13:00",
-    endTime: "15:00",
-    status: "Rejected",
-  },
-  {
-    id: 5,
-    companyName: "Innovate Inc",
-    area: "Painting",
-    date: "2023-05-19",
-    startTime: "11:00",
-    endTime: "13:00",
-    status: "Pending",
-  },
-  {
-    id: 6,
-    companyName: "Future Systems",
-    area: "Carpentry",
-    date: "2023-05-20",
-    startTime: "15:00",
-    endTime: "17:00",
-    status: "Accepted",
-  },
-];
-
-interface DashboardOverviewProps extends React.HTMLAttributes<HTMLDivElement> {}
+interface DashboardOverviewProps extends React.HTMLAttributes<HTMLDivElement> {
+  users: UseQueryResult<UserDocument[], Error>;
+  reservations: UseQueryResult<ReservationDocument[], Error>;
+}
 
 const DashboardOverview: FunctionComponent<DashboardOverviewProps> = ({
   className,
+  users,
+  reservations,
 }) => {
-  const users = useQuery({
-    queryKey: ["users"],
-    queryFn: async () => await getAllActiveUsers(),
-  });
+  const chartData = useMemo(
+    () => [
+      {
+        name: "Carpintaria",
+        value: reservations.data?.filter((r) => r.area === AreasEnum.CARPENTRY)
+          .length,
+      },
+      {
+        name: "CNC Router",
+        value: reservations.data?.filter((r) => r.area === AreasEnum.CNC_ROUTER)
+          .length,
+      },
+      {
+        name: "Corte a laser",
+        value: reservations.data?.filter(
+          (r) => r.area === AreasEnum.LASER_CUTTING
+        ).length,
+      },
+      {
+        name: "Usinagem",
+        value: reservations.data?.filter((r) => r.area === AreasEnum.MACHINING)
+          .length,
+      },
+      {
+        name: "Pintura",
+        value: reservations.data?.filter((r) => r.area === AreasEnum.PAINTING)
+          .length,
+      },
+      {
+        name: "Solda",
+        value: reservations.data?.filter((r) => r.area === AreasEnum.WELDING)
+          .length,
+      },
+    ],
+    [reservations.data]
+  );
+
+  const numberOfOpenReservations = useMemo(
+    () => reservations.data?.filter((r) => r.endTime >= new Date()).length,
+    [reservations.data]
+  );
+
+  const numberOfCompletedReservations = useMemo(
+    () => reservations.data?.filter((r) => r.endTime < new Date()).length,
+    [reservations.data]
+  );
 
   return (
     <>
       <Card className={className}>
         <CardHeader>
-          <CardTitle>Reservations by Area</CardTitle>
+          <CardTitle>Reservas por Area</CardTitle>
           <CardDescription>
-            Overview of reservations for each laboratory area
+            Visão geral das reservas para cada área de laboratório
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -123,6 +107,30 @@ const DashboardOverview: FunctionComponent<DashboardOverviewProps> = ({
       <div className="space-y-6 flex flex-row md:flex-col justify-between gap-3 overflow-auto">
         <Card className="w-full h-full !m-0">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Reservas Abertas
+            </CardTitle>
+            <CalendarIcon className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{numberOfOpenReservations}</div>
+          </CardContent>
+        </Card>
+        <Card className="w-full h-full !m-0">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Reservas Concluídas
+            </CardTitle>
+            <CircleCheckBig className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {numberOfCompletedReservations}
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="w-full h-full !m-0">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Usuários</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
@@ -135,32 +143,6 @@ const DashboardOverview: FunctionComponent<DashboardOverviewProps> = ({
               ) : (
                 "ERRO"
               )}
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="w-full h-full !m-0">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Pending Reservations
-            </CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {reservations.filter((r) => r.status === "Pending").length}
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="w-full h-full !m-0">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Upcoming Reservations
-            </CardTitle>
-            <CalendarIcon className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {reservations.filter((r) => r.status === "Accepted").length}
             </div>
           </CardContent>
         </Card>

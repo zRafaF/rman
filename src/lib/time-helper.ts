@@ -1,3 +1,8 @@
+import moment from "moment";
+
+// @ts-expect-error Missing type definitions
+import "moment/dist/locale/pt-br";
+
 /**
     Returns an array with time strings in the format "HH:MM" between the start and end time with the given interval.
 
@@ -71,4 +76,16 @@ export function timestampToDate(timestamp: {
   nanoseconds: number;
 }) {
   return new Date(timestamp.seconds * 1000);
+}
+
+export function formatReservationDate(
+  date: Date,
+  startTime: Date,
+  endTime: Date
+) {
+  return (
+    moment(date).format("l") +
+    " | " +
+    `${convertDateToTimeString(startTime)}-${convertDateToTimeString(endTime)}`
+  );
 }

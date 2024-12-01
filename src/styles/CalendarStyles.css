@@ -18,7 +18,7 @@
 }
 
 .custom-calendar .rbc-toolbar-label {
-  @apply font-bold text-lg;
+  @apply font-bold text-lg capitalize;
 }
 
 /* Header Styles */

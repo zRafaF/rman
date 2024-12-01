@@ -42,7 +42,7 @@ export default function Reserve() {
   const [email, setEmail] = useState<string | undefined>();
   const [telephone, setTelephone] = useState<E164Number | undefined>();
   const [area, setArea] = useState<AreasEnum | undefined>();
-  const [reserveDate, setReserveDate] = useState<Date | undefined>();
+  const [reservationDate, setReservationDate] = useState<Date | undefined>();
   const [startTime, setStartTime] = useState<Date | undefined>();
   const [endTime, setEndTime] = useState<Date | undefined>();
 
@@ -55,7 +55,7 @@ export default function Reserve() {
   useEffect(() => {
     setStartTime(undefined);
     setEndTime(undefined);
-  }, [reserveDate, setStartTime, setEndTime]);
+  }, [reservationDate, setStartTime, setEndTime]);
 
   if (loading) {
     return <div>Loading...</div>;
@@ -82,7 +82,7 @@ export default function Reserve() {
       email &&
       telephone &&
       area &&
-      reserveDate &&
+      reservationDate &&
       startTime &&
       endTime &&
       validateDate()
@@ -97,7 +97,7 @@ export default function Reserve() {
       email,
       telephone,
       area,
-      reserveDate,
+      reserveDate: reservationDate,
       startTime,
       endTime,
     });
@@ -121,7 +121,7 @@ export default function Reserve() {
       email: email!,
       phone: telephone!,
       area: area!,
-      reserveDate: reserveDate!,
+      reservationDate: reservationDate!,
       startTime: startTime!,
       endTime: endTime!,
 
@@ -152,7 +152,7 @@ export default function Reserve() {
         animate={{ scale: 1 }}
         transition={{ duration: 0.5 }}
       >
-        <Card className="w-full max-w-xl overflow-hidden mx-4">
+        <Card className="w-full max-w-xl overflow-hidden">
           <CardHeader>
             <CardTitle className="text-3xl font-bold mb-4 text-[#273C4E]">
               Nova reserva
@@ -237,9 +237,11 @@ export default function Reserve() {
                     id="date"
                     name="date"
                     type="date"
-                    value={reserveDate?.toISOString().split("T")[0]}
+                    value={reservationDate?.toISOString().split("T")[0]}
                     onChange={(e) => {
-                      setReserveDate(new Date(e.target.value));
+                      const selectedDate = e.target.value;
+
+                      setReservationDate(new Date(selectedDate + "T00:00:00"));
                     }}
                     min={today}
                     required
@@ -249,13 +251,13 @@ export default function Reserve() {
                   <div className="w-1/2">
                     <Label htmlFor="startTime">Inicio*</Label>
                     <Select
-                      disabled={!reserveDate}
+                      disabled={!reservationDate}
                       value={convertDateToTimeString(startTime)}
                       onValueChange={(value) => {
-                        if (!reserveDate) return;
+                        if (!reservationDate) return;
                         const startTimeDate = convertTimeStringToDate(
                           value,
-                          reserveDate
+                          reservationDate
                         );
                         setStartTime(startTimeDate);
                       }}
@@ -275,13 +277,13 @@ export default function Reserve() {
                   <div className="w-1/2">
                     <Label htmlFor="endTime">Fim*</Label>
                     <Select
-                      disabled={!reserveDate}
+                      disabled={!reservationDate}
                       value={convertDateToTimeString(endTime)}
                       onValueChange={(value) => {
-                        if (!reserveDate) return;
+                        if (!reservationDate) return;
                         const endTimeDate = convertTimeStringToDate(
                           value,
-                          reserveDate
+                          reservationDate
                         );
                         setEndTime(endTimeDate);
                       }}
@@ -292,9 +294,9 @@ export default function Reserve() {
                       <SelectContent>
                         {timeOptions.map((time) => {
                           const isSelectable =
-                            reserveDate &&
+                            reservationDate &&
                             isTimeSelectable(
-                              convertTimeStringToDate(time, reserveDate)
+                              convertTimeStringToDate(time, reservationDate)
                             );
 
                           return (

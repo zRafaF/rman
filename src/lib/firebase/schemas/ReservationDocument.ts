@@ -24,7 +24,7 @@ interface ReservationDocument {
   status: StatusEnum;
   area: AreasEnum;
 
-  reserveDate: Date;
+  reservationDate: Date;
   startTime: Date;
   endTime: Date;
 }

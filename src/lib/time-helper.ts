@@ -65,3 +65,10 @@ export function convertDateToTimeString(date: Date | undefined) {
 
   return `${hours}:${minutes}`;
 }
+
+export function timestampToDate(timestamp: {
+  seconds: number;
+  nanoseconds: number;
+}) {
+  return new Date(timestamp.seconds * 1000);
+}

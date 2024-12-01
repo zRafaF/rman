@@ -12,113 +12,36 @@ import moment from "moment";
 // @ts-expect-error Missing type definitions
 import "moment/dist/locale/pt-br";
 import React from "react";
+import { getAllReservations } from "@/lib/firebase/reservations";
+import { useQuery } from "@tanstack/react-query";
+import ReservationDocument from "@/lib/firebase/schemas/ReservationDocument";
 
-const events = [
-  {
-    title: "Big Meeting",
-    allDay: false,
-    start: new Date(2024, 10, 22, 9, 15),
-    end: new Date(2024, 10, 22, 9, 30),
-  },
-  {
-    title: "Second Big Meeting",
-    allDay: false,
-    start: new Date(2024, 10, 22, 9, 45),
-    end: new Date(2024, 10, 22, 10, 30),
-  },
-  {
-    title: "Serraria1",
-    allDay: false,
-    start: new Date(2024, 10, 22, 8, 45),
-    end: new Date(2024, 10, 22, 10, 30),
-  },
-  {
-    title: "Serraria",
-    allDay: false,
-    start: new Date(2024, 10, 22, 9, 45),
-    end: new Date(2024, 10, 22, 10, 15),
-  },
-  {
-    title: "Big Meeting",
-    allDay: false,
-    start: new Date(2024, 10, 22, 9, 15),
-    end: new Date(2024, 10, 22, 9, 30),
-  },
-  {
-    title: "Second Big Meeting",
-    allDay: false,
-    start: new Date(2024, 10, 22, 9, 45),
-    end: new Date(2024, 10, 22, 10, 30),
-  },
-  {
-    title: "Serraria",
-    allDay: false,
-    start: new Date(2024, 10, 22, 8, 45),
-    end: new Date(2024, 10, 22, 10, 30),
-  },
-  {
-    title: "Serraria",
-    allDay: false,
-    start: new Date(2024, 10, 22, 9, 45),
-    end: new Date(2024, 10, 22, 10, 15),
-  },
-  {
-    title: "Big Meeting",
-    allDay: false,
-    start: new Date(2024, 10, 22, 9, 15),
-    end: new Date(2024, 10, 22, 9, 30),
-  },
-  {
-    title: "Second Big Meeting",
-    allDay: false,
-    start: new Date(2024, 10, 22, 9, 45),
-    end: new Date(2024, 10, 22, 10, 30),
-  },
-  {
-    title: "Serraria",
-    allDay: false,
-    start: new Date(2024, 10, 22, 8, 45),
-    end: new Date(2024, 10, 22, 10, 30),
-  },
-  {
-    title: "Serraria",
-    allDay: false,
-    start: new Date(2024, 10, 22, 9, 45),
-    end: new Date(2024, 10, 22, 10, 15),
-  },
-  {
-    title: "Big Meeting",
-    allDay: false,
-    start: new Date(2024, 10, 22, 9, 15),
-    end: new Date(2024, 10, 22, 9, 30),
-  },
-  {
-    title: "Second Big Meeting",
-    allDay: false,
-    start: new Date(2024, 10, 22, 9, 45),
-    end: new Date(2024, 10, 22, 10, 30),
-  },
-  {
-    title: "Serraria",
-    allDay: false,
-    start: new Date(2024, 10, 22, 8, 45),
-    end: new Date(2024, 10, 22, 10, 30),
-  },
-  {
-    title: "Serraria",
-    allDay: false,
-    start: new Date(2024, 10, 22, 9, 45),
-    end: new Date(2024, 10, 22, 10, 15),
-  },
-];
+interface ReactBigCalendarEvent {
+  title: string;
+  start: Date;
+  end: Date;
+  allDay?: boolean;
+  resource?: ReservationDocument;
+}
 
-const EventBody: FunctionComponent<EventProps<any>> = ({ event }) => {
+const EventBody: FunctionComponent<EventProps<ReactBigCalendarEvent>> = ({
+  event,
+}) => {
+  console.log("Event:", event);
+
   return <div className="border-b-4 border-indigo-500">{event.title}</div>;
 };
 
 interface ScheduleProps {}
 
 const Schedule: FunctionComponent<ScheduleProps> = () => {
+  const reservations = useQuery({
+    queryKey: ["reservations"],
+    queryFn: async () => await getAllReservations(),
+
+    initialData: [],
+  });
+
   const localizer = momentLocalizer(moment);
   const [selectedDate, setSelectedDate] = React.useState<Date>(new Date());
   const [view, setView] = useState<View>(Views.MONTH);
@@ -126,6 +49,17 @@ const Schedule: FunctionComponent<ScheduleProps> = () => {
   const onNavigate = useCallback(
     (newDate: Date) => setSelectedDate(newDate),
     [setSelectedDate]
+  );
+
+  const events: ReactBigCalendarEvent[] = useMemo(
+    () =>
+      reservations.data.map((reservation) => ({
+        title: reservation.name,
+        start: reservation.startTime,
+        end: reservation.endTime,
+        resource: reservation,
+      })),
+    [reservations.data]
   );
 
   const { components } = useMemo(

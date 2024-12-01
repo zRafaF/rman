@@ -16,14 +16,17 @@ export enum StatusEnum {
 
 interface ReservationDocument {
   uid: string;
+
+  name: string;
   email: string;
   phone: string;
+
+  status: StatusEnum;
   area: AreasEnum;
+
   reserveDate: Date;
   startTime: Date;
   endTime: Date;
-
-  status: StatusEnum;
 }
 
 export default ReservationDocument;

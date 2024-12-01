@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,44 +22,40 @@ import {
 import { motion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router";
-
-const timeOptions = [
-  "08:00",
-  "08:30",
-  "09:00",
-  "09:30",
-  "10:00",
-  "10:30",
-  "11:00",
-  "11:30",
-  "12:00",
-  "12:30",
-  "13:00",
-  "13:30",
-  "14:00",
-  "14:30",
-  "15:00",
-  "15:30",
-  "16:00",
-  "16:30",
-  "17:00",
-  "17:30",
-  "18:00",
-];
+import ReservationDocument, {
+  AreasEnum,
+  StatusEnum,
+} from "@/lib/firebase/schemas/ReservationDocument";
+import {
+  convertDateToTimeString,
+  convertTimeStringToDate,
+  getTimeStringArray,
+} from "@/lib/time-helper";
+import { toast } from "react-toastify";
+import { createReservation } from "@/lib/firebase/reservations";
+import { RotatingLines } from "react-loader-spinner";
 
 export default function Reserve() {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    date: "",
-    startTime: "",
-    endTime: "",
-    area: "",
-  });
+  const [isLoading, setIsLoading] = useState(false);
+
+  const [name, setName] = useState<string | undefined>();
+  const [email, setEmail] = useState<string | undefined>();
+  const [telephone, setTelephone] = useState<E164Number | undefined>();
+  const [area, setArea] = useState<AreasEnum | undefined>();
+  const [reserveDate, setReserveDate] = useState<Date | undefined>();
+  const [startTime, setStartTime] = useState<Date | undefined>();
+  const [endTime, setEndTime] = useState<Date | undefined>();
+
   const [user, loading] = useAuth();
 
-  const [telephone, setTelephone] = useState<E164Number | undefined>();
+  const timeOptions = useMemo(() => getTimeStringArray(6, 19, 30), []);
+
   const navigate = useNavigate();
+
+  useEffect(() => {
+    setStartTime(undefined);
+    setEndTime(undefined);
+  }, [reserveDate, setStartTime, setEndTime]);
 
   if (loading) {
     return <div>Loading...</div>;
@@ -69,52 +65,81 @@ export default function Reserve() {
     navigate("/not-authenticated?redirect_to=/reserve", {
       replace: true,
     });
-    return <></>;
+    return null;
   }
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+  const isTimeSelectable = (time: Date) => {
+    return startTime && time > startTime;
   };
 
-  const handleTimeChange = (field: "startTime" | "endTime", value: string) => {
-    setFormData({ ...formData, [field]: value });
+  const validateDate = () => {
+    return startTime && endTime && endTime > startTime;
   };
-
-  const handleAreaChange = (value: string) => {
-    setFormData({ ...formData, area: value });
-  };
-
-  const validateTimes = (time: string, field: "startTime" | "endTime") => {
-    const { startTime } = formData;
-    if (field === "endTime") {
-      return (
-        new Date(`1970-01-01T${time}`) > new Date(`1970-01-01T${startTime}`)
-      );
-    }
-
-    return true;
-  };
-
-  const isTimeSelectable = (time: string, field: "startTime" | "endTime") =>
-    field === "startTime" || validateTimes(time, field);
 
   const validateForm = () => {
-    const { startTime, endTime } = formData;
     return (
+      name &&
+      email &&
+      telephone &&
+      area &&
+      reserveDate &&
       startTime &&
       endTime &&
-      new Date(`1970-01-01T${endTime}`) > new Date(`1970-01-01T${startTime}`)
+      validateDate()
     );
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validateForm()) {
-      alert("End time must be after the start time.");
+
+    console.log({
+      name,
+      email,
+      telephone,
+      area,
+      reserveDate,
+      startTime,
+      endTime,
+    });
+
+    if (!validateDate()) {
+      toast.error("O horário de fim deve ser depois do horário de início.");
       return;
     }
-    console.log("Form submitted:", formData);
-    // Backend submission logic here
+
+    if (!validateForm()) {
+      toast.error("Por favor, preencha todos os campos.");
+      return;
+    }
+
+    setIsLoading(true);
+
+    const reservation: ReservationDocument = {
+      uid: user.uid,
+
+      name: name!,
+      email: email!,
+      phone: telephone!,
+      area: area!,
+      reserveDate: reserveDate!,
+      startTime: startTime!,
+      endTime: endTime!,
+
+      status: StatusEnum.PENDING,
+    };
+
+    try {
+      await createReservation(reservation);
+      toast.success("Reserva criada com sucesso");
+      setIsLoading(false);
+
+      navigate("/schedule");
+    } catch (error) {
+      console.error("Erro ao criar reserva", error);
+      toast.error("Erro ao criar reserva");
+    }
+
+    setIsLoading(false);
   };
 
   // Get today's date in YYYY-MM-DD format
@@ -142,8 +167,8 @@ export default function Reserve() {
                   <Input
                     id="name"
                     name="name"
-                    value={formData.name}
-                    onChange={handleInputChange}
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
                     required
                   />
                 </div>
@@ -153,8 +178,8 @@ export default function Reserve() {
                     id="email"
                     name="email"
                     type="email"
-                    value={formData.email}
-                    onChange={handleInputChange}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     required
                   />
                 </div>
@@ -176,16 +201,27 @@ export default function Reserve() {
                   <div className="w-1/2">
                     <div>
                       <Label htmlFor="area">Ambiente*</Label>
-                      <Select onValueChange={handleAreaChange}>
+                      <Select
+                        value={area}
+                        onValueChange={(value) => setArea(value as AreasEnum)}
+                      >
                         <SelectTrigger>
                           <SelectValue placeholder="Selecione um ambiente" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="machining">Usinagem</SelectItem>
-                          <SelectItem value="carpentry">Carpentaria</SelectItem>
-                          <SelectItem value="welding">Solda</SelectItem>
-                          <SelectItem value="painting">Pintura</SelectItem>
-                          <SelectItem value="laser-cutting">
+                          <SelectItem value={AreasEnum.MACHINING}>
+                            Usinagem
+                          </SelectItem>
+                          <SelectItem value={AreasEnum.CARPENTRY}>
+                            Carpentaria
+                          </SelectItem>
+                          <SelectItem value={AreasEnum.WELDING}>
+                            Solda
+                          </SelectItem>
+                          <SelectItem value={AreasEnum.PAINTING}>
+                            Pintura
+                          </SelectItem>
+                          <SelectItem value={AreasEnum.LASER_CUTTING}>
                             Corte à laser
                           </SelectItem>
                           <SelectItem value="cnc-router">CNC Router</SelectItem>
@@ -201,26 +237,31 @@ export default function Reserve() {
                     id="date"
                     name="date"
                     type="date"
-                    value={formData.date}
-                    onChange={handleInputChange}
+                    value={reserveDate?.toISOString().split("T")[0]}
+                    onChange={(e) => {
+                      setReserveDate(new Date(e.target.value));
+                    }}
                     min={today}
                     required
                   />
                 </div>
                 <div className="flex gap-4">
                   <div className="w-1/2">
-                    <Label htmlFor="startTime">Incio*</Label>
+                    <Label htmlFor="startTime">Inicio*</Label>
                     <Select
-                      onValueChange={(value) =>
-                        handleTimeChange("startTime", value)
-                      }
+                      disabled={!reserveDate}
+                      value={convertDateToTimeString(startTime)}
+                      onValueChange={(value) => {
+                        if (!reserveDate) return;
+                        const startTimeDate = convertTimeStringToDate(
+                          value,
+                          reserveDate
+                        );
+                        setStartTime(startTimeDate);
+                      }}
                     >
                       <SelectTrigger>
-                        <SelectValue
-                          placeholder={
-                            formData.startTime || "Horário de início"
-                          }
-                        />
+                        <SelectValue placeholder={"Horário de início"} />
                       </SelectTrigger>
                       <SelectContent>
                         {timeOptions.map((time) => (
@@ -234,29 +275,42 @@ export default function Reserve() {
                   <div className="w-1/2">
                     <Label htmlFor="endTime">Fim*</Label>
                     <Select
-                      onValueChange={(value) =>
-                        handleTimeChange("endTime", value)
-                      }
+                      disabled={!reserveDate}
+                      value={convertDateToTimeString(endTime)}
+                      onValueChange={(value) => {
+                        if (!reserveDate) return;
+                        const endTimeDate = convertTimeStringToDate(
+                          value,
+                          reserveDate
+                        );
+                        setEndTime(endTimeDate);
+                      }}
                     >
                       <SelectTrigger>
-                        <SelectValue
-                          placeholder={formData.endTime || "Horário de fim"}
-                        />
+                        <SelectValue placeholder={"Horário de fim"} />
                       </SelectTrigger>
                       <SelectContent>
-                        {timeOptions.map((time) => (
-                          <SelectItem
-                            key={time}
-                            value={time}
-                            className={
-                              !isTimeSelectable(time, "endTime")
-                                ? "text-gray-400 pointer-events-none"
-                                : ""
-                            }
-                          >
-                            {time}
-                          </SelectItem>
-                        ))}
+                        {timeOptions.map((time) => {
+                          const isSelectable =
+                            reserveDate &&
+                            isTimeSelectable(
+                              convertTimeStringToDate(time, reserveDate)
+                            );
+
+                          return (
+                            <SelectItem
+                              key={time}
+                              value={time}
+                              className={
+                                !isSelectable
+                                  ? "text-gray-400 pointer-events-none"
+                                  : ""
+                              }
+                            >
+                              {time}
+                            </SelectItem>
+                          );
+                        })}
                       </SelectContent>
                     </Select>
                   </div>
@@ -269,9 +323,19 @@ export default function Reserve() {
                       ? "opacity-30 contrast-75 cursor-not-allowed"
                       : ""
                   }`}
-                  disabled={!validateForm()}
+                  disabled={!validateForm() || isLoading}
                 >
-                  Solicitar reserva
+                  {isLoading ? (
+                    <>
+                      <RotatingLines
+                        ariaLabel="chat-loading"
+                        strokeColor="white"
+                      />
+                      Criando reserva...
+                    </>
+                  ) : (
+                    <>Solicitar reserva</>
+                  )}
                 </Button>
               </form>
             </div>

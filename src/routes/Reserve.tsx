@@ -90,25 +90,25 @@ export default function Reserve() {
     );
   };
 
-  if (
-    !reservationDate ||
-    !startTime ||
-    !endTime ||
-    !name ||
-    !email ||
-    !telephone ||
-    !area
-  ) {
-    toast.error("Preencha todos os campos para continuar.");
-    return null;
-  }
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!validateDate()) {
       toast.error("O horário de fim deve ser depois do horário de início.");
       return;
+    }
+
+    if (
+      !reservationDate ||
+      !startTime ||
+      !endTime ||
+      !name ||
+      !email ||
+      !telephone ||
+      !area
+    ) {
+      toast.error("Preencha todos os campos para continuar.");
+      return null;
     }
 
     setIsLoading(true);

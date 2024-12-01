@@ -34,6 +34,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { formatPhoneNumber } from "react-phone-number-input";
+import EditUserDialog from "./EditUserDialog";
 
 interface ManageUsersProps extends HtmlHTMLAttributes<HTMLDivElement> {
   users: UseQueryResult<UserDocument[], Error>;
@@ -127,11 +128,19 @@ const ManageUsers: FunctionComponent<ManageUsersProps> = ({
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="w-40">
+                        <EditUserDialog user={user}>
+                          <Button
+                            variant="ghost"
+                            className="w-full justify-start"
+                          >
+                            Editar
+                          </Button>
+                        </EditUserDialog>
                         <Button
                           variant="ghost"
                           className="w-full justify-start"
                         >
-                          Editar
+                          Redefinir Senha
                         </Button>
                         <Button
                           variant="ghost"

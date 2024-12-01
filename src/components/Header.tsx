@@ -18,12 +18,8 @@ interface HeaderProps {}
 
 const Header: FunctionComponent<HeaderProps> = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [user, loading, logout] = useAuth();
+  const [user, _, logout] = useAuth();
   const userCtx = useUserContext();
-
-  if (loading) {
-    return <div>Loading...</div>;
-  }
 
   const loggedInHeader = (
     <>

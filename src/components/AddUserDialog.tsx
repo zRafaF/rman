@@ -201,7 +201,9 @@ const AddUserDialog: FunctionComponent<AddUserDialogProps> = () => {
                     name="password"
                     type="text"
                     value={newUser.password}
-                    // onChange={handleInputChange}
+                    onChange={(e) =>
+                      setNewUser({ ...newUser, password: e.target.value })
+                    }
                     readOnly
                     disabled
                     required

@@ -19,7 +19,7 @@ const Footer: FunctionComponent<FooterProps> = () => {
         </div>
 
         <div className="mx-auto">
-          <Link to="https://github.com/zRafaF/rman">
+          <Link to="https://github.com/zRafaF">
             <SiGithub color="#273C4E" />
           </Link>
         </div>

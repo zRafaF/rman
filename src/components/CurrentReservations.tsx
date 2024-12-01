@@ -64,8 +64,8 @@ const CurrentReservations: FunctionComponent<CurrentReservationsProps> = ({
               <TableRow>
                 <TableHead>Nome</TableHead>
                 <TableHead>Area</TableHead>
-                <TableHead>Nome do Utilizador</TableHead>
-                <TableHead>Telefone Utilizador</TableHead>
+                <TableHead>Nome Utilizador</TableHead>
+                <TableHead>Tel. Utilizador</TableHead>
                 <TableHead>Data e Hora</TableHead>
                 <TableHead>Mais</TableHead>
               </TableRow>

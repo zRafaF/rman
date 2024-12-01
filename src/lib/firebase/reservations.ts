@@ -1,6 +1,12 @@
 import { db } from "@/firebase";
 import ReservationDocument from "./schemas/ReservationDocument";
-import { collection, addDoc, getDocs } from "firebase/firestore";
+import {
+  collection,
+  addDoc,
+  getDocs,
+  query,
+  orderBy,
+} from "firebase/firestore";
 import { timestampToDate } from "../time-helper";
 
 export async function createReservation(reservation: ReservationDocument) {
@@ -9,8 +15,14 @@ export async function createReservation(reservation: ReservationDocument) {
   return docRef;
 }
 
-export async function getAllReservations() {
-  const querySnapshot = await getDocs(collection(db, "reservations"));
+export async function getAllReservations(): Promise<ReservationDocument[]> {
+  // Create a Firestore query that orders documents by "startTime"
+  const reservationsQuery = query(
+    collection(db, "reservations"),
+    orderBy("startTime", "desc")
+  );
+
+  const querySnapshot = await getDocs(reservationsQuery);
 
   const reservations: ReservationDocument[] = [];
   querySnapshot.forEach((doc) => {

@@ -35,6 +35,8 @@ import {
 } from "@/components/ui/tooltip";
 import { formatPhoneNumber } from "react-phone-number-input";
 import EditUserDialog from "./EditUserDialog";
+import { toast } from "react-toastify";
+import { sendResetPassword } from "@/lib/firebase/users";
 
 interface ManageUsersProps extends HtmlHTMLAttributes<HTMLDivElement> {
   users: UseQueryResult<UserDocument[], Error>;
@@ -91,6 +93,30 @@ const ManageUsers: FunctionComponent<ManageUsersProps> = ({
     return <div>Error loading users</div>;
   }
 
+  const resetPassword = async (user: UserDocument) => {
+    const toastId = toast.loading("Enviando email...");
+
+    try {
+      await sendResetPassword(user.email);
+
+      toast.update(toastId, {
+        render: "Email enviado com sucesso",
+        type: "success",
+        isLoading: false,
+        autoClose: 3000,
+      });
+    } catch (error) {
+      toast.update(toastId, {
+        render: "Erro ao enviar email",
+        type: "error",
+        isLoading: false,
+        autoClose: 3000,
+      });
+
+      console.error("Error sending reset password email", error);
+    }
+  };
+
   return (
     <Card className={className}>
       <CardHeader className="flex sm:flex-row items-center justify-between ">
@@ -139,6 +165,9 @@ const ManageUsers: FunctionComponent<ManageUsersProps> = ({
                         <Button
                           variant="ghost"
                           className="w-full justify-start"
+                          onClick={() => {
+                            resetPassword(user);
+                          }}
                         >
                           Redefinir Senha
                         </Button>

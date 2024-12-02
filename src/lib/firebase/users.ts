@@ -2,6 +2,7 @@ import { auth, db, firebaseConfig } from "@/firebase";
 import {
   createUserWithEmailAndPassword,
   getAuth,
+  sendPasswordResetEmail,
   signInWithEmailAndPassword,
   UserCredential,
 } from "firebase/auth";
@@ -93,4 +94,17 @@ export async function adminRegisterUser(
   const docRef = doc(db, "users", uid);
 
   await setDoc(docRef, userDocument);
+}
+
+export async function updateUser(
+  newDocument: UserDocument,
+)
+{
+  const docRef = doc(db, "users", newDocument.uid);
+
+  await setDoc(docRef, newDocument);
+}
+
+export async function sendResetPassword(email: string) {
+  await sendPasswordResetEmail(auth, email);
 }

@@ -59,7 +59,8 @@ const AddUserDialog: FunctionComponent<AddUserDialogProps> = () => {
       !newUser.companyName ||
       !newUser.email ||
       !newUser.phone ||
-      !newUser.password
+      !newUser.password ||
+      !newUser.role
     ) {
       toast.error("Preencha todos os campos para continuar.");
       return;
@@ -72,7 +73,7 @@ const AddUserDialog: FunctionComponent<AddUserDialogProps> = () => {
         newUser.email,
         newUser.phone as string,
         newUser.password,
-        UserRoles.COMPANY
+        newUser.role
       );
       toast.success("Usuário cadastrado com sucesso!");
 

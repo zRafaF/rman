@@ -252,7 +252,7 @@ export default function Login() {
                           id="reset-password"
                           type="email"
                           placeholder="fulano@empresa.com"
-                          value={email}
+                          value={resetPasswordEmail}
                           onChange={(e) =>
                             setResetPasswordEmail(e.target.value)
                           }

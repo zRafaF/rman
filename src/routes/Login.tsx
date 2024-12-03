@@ -7,21 +7,37 @@ import {
   CardDescription,
   CardFooter,
 } from "@/components/ui/card";
-import { HardHat, LogIn } from "lucide-react";
+import { HardHat, LogIn, User } from "lucide-react";
 // import CitizenLogin from './CitizenLogin';
 // import PoliceLogin from './PoliceLogin';
 import { Button } from "@/components/ui/button";
-import { Link, useSearchParams } from "react-router";
+import { useSearchParams } from "react-router";
 
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Eye, EyeOff } from "lucide-react";
-import { getUserById, login } from "@/lib/firebase/users";
+import {
+  getUserById,
+  login,
+  loginAnonymously,
+  sendResetPassword,
+} from "@/lib/firebase/users";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router";
 import { RotatingLines } from "react-loader-spinner";
 import { UserRoles } from "@/lib/firebase/schemas/UserDocument";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 export default function Login() {
   const [email, setEmail] = useState<string>("");
@@ -32,6 +48,8 @@ export default function Login() {
   const searchParamRedirectTo = searchParams.get("redirect_to");
   const navigate = useNavigate();
   const [loading, setLoading] = useState<boolean>(false);
+
+  const [resetPasswordEmail, setResetPasswordEmail] = useState<string>("");
 
   const [error, setError] = useState<string>(
     searchParamError ? "Credenciais inválidas. Por favor, tente novamente." : ""
@@ -67,6 +85,45 @@ export default function Login() {
       toast.error("Credenciais inválidas. Por favor, tente novamente.");
     }
     setLoading(false);
+  };
+
+  const loginAsGuest = async () => {
+    setLoading(true);
+
+    try {
+      await loginAnonymously();
+      navigate("/reserve", {
+        replace: true,
+      });
+    } catch (error) {
+      console.error("Error logging in as guest:", error);
+      toast.error("Erro ao fazer login como visitante.");
+    }
+    setLoading(false);
+  };
+
+  const resetPassword = async () => {
+    const toastId = toast.loading("Enviando email...");
+
+    try {
+      await sendResetPassword(resetPasswordEmail);
+
+      toast.update(toastId, {
+        render: "Email enviado com sucesso",
+        type: "success",
+        isLoading: false,
+        autoClose: 3000,
+      });
+    } catch (error) {
+      toast.update(toastId, {
+        render: "Erro ao enviar email",
+        type: "error",
+        isLoading: false,
+        autoClose: 3000,
+      });
+
+      console.error("Error sending reset password email", error);
+    }
   };
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900 dark:to-purple-900">
@@ -156,13 +213,66 @@ export default function Login() {
                   </>
                 )}
               </Button>
+              <Button
+                className="w-full mt-6"
+                disabled={loading}
+                variant={"outline"}
+                onClick={loginAsGuest}
+              >
+                {loading ? (
+                  <>
+                    <RotatingLines
+                      ariaLabel="chat-loading"
+                      strokeColor="white"
+                    />
+                    Fazendo login...
+                  </>
+                ) : (
+                  <>
+                    <User />
+                    Entrar como visitante
+                  </>
+                )}
+              </Button>
             </form>
           </CardContent>
           <CardFooter className="flex justify-center">
             <p className="text-sm text-muted-foreground">
-              <Link to="/signup" className="text-primary hover:underline">
-                Esqueci minha senha.
-              </Link>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant={"link"}>Esqueci minha senha.</Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Insira seu email?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      <div className="space-y-2">
+                        <Label htmlFor="reset-password">Email</Label>
+                        <Input
+                          id="reset-password"
+                          type="email"
+                          placeholder="fulano@empresa.com"
+                          value={email}
+                          onChange={(e) =>
+                            setResetPasswordEmail(e.target.value)
+                          }
+                          required
+                        />
+                      </div>
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={() => {
+                        resetPassword();
+                      }}
+                    >
+                      Enviar email
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </p>
           </CardFooter>
         </motion.div>

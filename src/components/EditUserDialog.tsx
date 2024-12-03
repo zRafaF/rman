@@ -25,6 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { updateUser } from "@/lib/firebase/users";
 
 interface AddUserDialogProps {
   children: React.ReactNode;
@@ -35,14 +36,7 @@ const EditUserDialog: FunctionComponent<AddUserDialogProps> = ({
   children,
   user,
 }) => {
-  const [newUser, setNewUser] = useState<UserDocument>({
-    uid: user.uid,
-    name: user.name,
-    email: user.email,
-    phone: user.phone,
-    role: user.role,
-    status: user.status,
-  });
+  const [newUser, setNewUser] = useState<UserDocument>(user);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleCreateUser = async (e: React.FormEvent) => {
@@ -55,12 +49,7 @@ const EditUserDialog: FunctionComponent<AddUserDialogProps> = ({
 
     setIsLoading(true);
     try {
-      // await adminRegisterUser(
-      //   newUser.companyName,
-      //   newUser.email,
-      //   newUser.phone as string,
-      //   UserRoles.COMPANY
-      // );
+      await updateUser(newUser);
       toast.success("Usuário editado com sucesso!");
     } catch (error) {
       console.error(error);
@@ -98,7 +87,11 @@ const EditUserDialog: FunctionComponent<AddUserDialogProps> = ({
                 className="col-span-3"
               />
             </div>
-            <div className="grid grid-cols-4 items-center gap-4">
+            {/*
+
+
+
+              <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="email" className="text-right">
                 Email
               </Label>
@@ -112,6 +105,7 @@ const EditUserDialog: FunctionComponent<AddUserDialogProps> = ({
                 className="col-span-3"
               />
             </div>
+              */}
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="phone" className="text-right">
                 Telefone

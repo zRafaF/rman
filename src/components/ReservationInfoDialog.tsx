@@ -46,6 +46,7 @@ import UserDocument, { UserStatus } from "@/lib/firebase/schemas/UserDocument";
 import { deleteReservation } from "@/lib/firebase/reservations";
 import { DocumentData, QueryDocumentSnapshot } from "firebase/firestore";
 import { RotatingLines } from "react-loader-spinner";
+import { toast } from "react-toastify";
 
 interface ReservationInfoDialogProps {
   reservationPair: {
@@ -65,8 +66,12 @@ const ReservationInfoDialog: FunctionComponent<ReservationInfoDialogProps> = ({
 
     try {
       deleteReservation(reservationPair.reservation.id);
+      toast.success("Reserva excluída com sucesso!");
       setIsOpen(false);
-    } catch (error) {}
+    } catch (error) {
+      toast.error("Erro ao excluir a reserva. Tente novamente.");
+      console.error("Erro ao excluir a reserva.", error);
+    }
 
     setIsLoading(false);
   };

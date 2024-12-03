@@ -75,7 +75,10 @@ const CurrentReservations: FunctionComponent<CurrentReservationsProps> = ({
             <TableBody>
               {pairedReservations?.map((pair) => (
                 <TableRow key={`reservation-${pair.reservation.id}`}>
-                  <TableCell>{pair.user?.name}</TableCell>
+                  <TableCell>
+                    {pair.user?.name ??
+                      `${pair.reservation.data().name} [visitante]`}
+                  </TableCell>
                   <TableCell>
                     {translateAreasEnum(pair.reservation.data().area).title}
                   </TableCell>

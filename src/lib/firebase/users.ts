@@ -3,6 +3,7 @@ import {
   createUserWithEmailAndPassword,
   getAuth,
   sendPasswordResetEmail,
+  signInAnonymously,
   signInWithEmailAndPassword,
   UserCredential,
 } from "firebase/auth";
@@ -25,6 +26,11 @@ export async function login(
   password: string
 ): Promise<UserCredential> {
   const credentials = await signInWithEmailAndPassword(auth, email, password);
+  return credentials;
+}
+
+export async function loginAnonymously(): Promise<UserCredential> {
+  const credentials = await signInAnonymously(auth);
   return credentials;
 }
 
@@ -96,10 +102,7 @@ export async function adminRegisterUser(
   await setDoc(docRef, userDocument);
 }
 
-export async function updateUser(
-  newDocument: UserDocument,
-)
-{
+export async function updateUser(newDocument: UserDocument) {
   const docRef = doc(db, "users", newDocument.uid);
 
   await setDoc(docRef, newDocument);
